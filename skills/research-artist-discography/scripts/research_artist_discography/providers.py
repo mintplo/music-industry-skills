@@ -8,12 +8,26 @@ from .models import ReleaseCandidate
 
 
 USER_AGENT = "research-artist-discography/0.1 (local Codex skill)"
+MUSICBRAINZ_MIN_REQUEST_INTERVAL = 1.1
+_last_musicbrainz_request_at = None
 
 
 def _get_json(url: str, timeout: int = 15) -> Dict[str, Any]:
     request = Request(url, headers={"Accept": "application/json", "User-Agent": USER_AGENT})
     with urlopen(request, timeout=timeout) as response:
         return json.loads(response.read().decode("utf-8"))
+
+
+def _get_musicbrainz_json(url: str) -> Dict[str, Any]:
+    global _last_musicbrainz_request_at
+
+    now = time.monotonic()
+    if _last_musicbrainz_request_at is not None:
+        remaining = MUSICBRAINZ_MIN_REQUEST_INTERVAL - (now - _last_musicbrainz_request_at)
+        if remaining > 0:
+            time.sleep(remaining)
+    _last_musicbrainz_request_at = time.monotonic()
+    return _get_json(url)
 
 
 def parse_musicbrainz_artists(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -70,7 +84,7 @@ def parse_itunes_albums(artist_name: str, payload: Dict[str, Any]) -> List[Relea
 def search_musicbrainz_artist(artist_name: str) -> List[Dict[str, Any]]:
     query = urlencode({"query": 'artist:"%s"' % artist_name, "fmt": "json", "limit": 10})
     return parse_musicbrainz_artists(
-        _get_json("https://musicbrainz.org/ws/2/artist/?%s" % query)
+        _get_musicbrainz_json("https://musicbrainz.org/ws/2/artist/?%s" % query)
     )
 
 
@@ -80,14 +94,15 @@ def fetch_musicbrainz_release_groups(
     rows = []
     offset = 0
     while True:
-        time.sleep(1.1)
         query = urlencode({
             "artist": artist_mbid,
             "fmt": "json",
             "limit": 100,
             "offset": offset,
         })
-        payload = _get_json("https://musicbrainz.org/ws/2/release-group?%s" % query)
+        payload = _get_musicbrainz_json(
+            "https://musicbrainz.org/ws/2/release-group?%s" % query
+        )
         page = payload.get("release-groups", [])
         rows.extend(parse_musicbrainz_release_groups(artist_name, payload))
         offset += len(page)
