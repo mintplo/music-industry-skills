@@ -23,4 +23,4 @@ Start from the artist name (아티스트 이름). Treat an album name as an opti
 
 Read `references/source-policy.md` before selecting or crawling sources. Read `references/data-schema.md` before combining observations or exporting JSON/CSV. Read `references/report-format.md` before composing the final brief or visualization.
 
-Use `scripts/collect_discography_data.py` when deterministic catalog normalization is useful. Web research remains necessary for current chart evidence, concepts, promotion, and sources not implemented by the script.
+If `scripts/collect_discography_data.py` exists, use it when deterministic catalog normalization is useful. Web research remains necessary for current chart evidence, concepts, promotion, and sources not implemented by the script.

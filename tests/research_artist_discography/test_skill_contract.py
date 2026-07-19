@@ -24,6 +24,12 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("references/source-policy.md", text)
         self.assertIn("references/data-schema.md", text)
         self.assertIn("references/report-format.md", text)
+        self.assertIn(
+            "If `scripts/collect_discography_data.py` exists, use it", text
+        )
+        self.assertNotIn(
+            "Use `scripts/collect_discography_data.py` when", text
+        )
         self.assertNotRegex(text, r"\b(T[B]D|T[O]DO|FIX[M]E)\b")
         self.assertLessEqual(len(text.splitlines()), 500)
 
