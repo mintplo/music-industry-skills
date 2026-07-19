@@ -3,7 +3,14 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 CODEX_ROOT="${CODEX_HOME:-$HOME/.codex}"
-DEST="$CODEX_ROOT/skills"
+while [ "$CODEX_ROOT" != "/" ] && [ "${CODEX_ROOT%/}" != "$CODEX_ROOT" ]; do
+  CODEX_ROOT="${CODEX_ROOT%/}"
+done
+if [ "$CODEX_ROOT" = "/" ]; then
+  DEST="/skills"
+else
+  DEST="$CODEX_ROOT/skills"
+fi
 NAMES_FILE="$(mktemp)"
 SKILLS_FILE="$(mktemp)"
 trap 'rm -f "$NAMES_FILE" "$SKILLS_FILE"' EXIT

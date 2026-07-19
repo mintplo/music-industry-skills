@@ -152,6 +152,23 @@ class SkillDiscoveryTests(unittest.TestCase):
             self.assertEqual(codex_home_inode, codex_home.lstat().st_ino)
             self.assertEqual([], list(external.iterdir()))
 
+    def test_symlinked_codex_home_with_trailing_slashes_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = self.make_repo(root, "group/alpha")
+            external = root / "external"
+            external.mkdir()
+            codex_home = root / "codex-home"
+            codex_home.symlink_to(external, target_is_directory=True)
+            codex_home_inode = codex_home.lstat().st_ino
+
+            result = self.run_linker(repo, f"{codex_home}///")
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("Codex home must not be a symlink", result.stderr)
+            self.assertEqual(codex_home_inode, codex_home.lstat().st_ino)
+            self.assertEqual([], list(external.iterdir()))
+
     def test_regular_file_conflict_is_rejected_without_partial_links(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
