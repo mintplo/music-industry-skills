@@ -103,6 +103,55 @@ class SkillDiscoveryTests(unittest.TestCase):
             self.assertIn("duplicate active skill name: duplicate", result.stderr)
             self.assertFalse((codex_home / "skills").exists())
 
+    def test_option_like_duplicate_leaf_names_are_rejected_before_any_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = self.make_repo(root, "a/-f", "z/-f")
+            codex_home = root / "codex-home"
+            codex_home.mkdir()
+
+            result = self.run_linker(repo, codex_home)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("duplicate active skill name: -f", result.stderr)
+            self.assertFalse((codex_home / "skills").exists())
+
+    def test_symlinked_skill_destination_is_rejected_without_external_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = self.make_repo(root, "group/alpha")
+            codex_home = root / "codex-home"
+            codex_home.mkdir()
+            external = root / "external"
+            external.mkdir()
+            destination = codex_home / "skills"
+            destination.symlink_to(external, target_is_directory=True)
+            destination_inode = destination.lstat().st_ino
+
+            result = self.run_linker(repo, codex_home)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("skill destination must not be a symlink", result.stderr)
+            self.assertEqual(destination_inode, destination.lstat().st_ino)
+            self.assertEqual([], list(external.iterdir()))
+
+    def test_symlinked_codex_home_is_rejected_without_external_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = self.make_repo(root, "group/alpha")
+            external = root / "external"
+            external.mkdir()
+            codex_home = root / "codex-home"
+            codex_home.symlink_to(external, target_is_directory=True)
+            codex_home_inode = codex_home.lstat().st_ino
+
+            result = self.run_linker(repo, codex_home)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("Codex home must not be a symlink", result.stderr)
+            self.assertEqual(codex_home_inode, codex_home.lstat().st_ino)
+            self.assertEqual([], list(external.iterdir()))
+
     def test_regular_file_conflict_is_rejected_without_partial_links(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

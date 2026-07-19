@@ -2,14 +2,30 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-DEST="${CODEX_HOME:-$HOME/.codex}/skills"
+CODEX_ROOT="${CODEX_HOME:-$HOME/.codex}"
+DEST="$CODEX_ROOT/skills"
 NAMES_FILE="$(mktemp)"
 SKILLS_FILE="$(mktemp)"
 trap 'rm -f "$NAMES_FILE" "$SKILLS_FILE"' EXIT
 
 "$REPO/scripts/list-skills.sh" > "$SKILLS_FILE"
 
-if { [ -e "$DEST" ] || [ -L "$DEST" ]; } && [ ! -d "$DEST" ]; then
+if [ -L "$CODEX_ROOT" ]; then
+  echo "error: Codex home must not be a symlink: $CODEX_ROOT" >&2
+  exit 1
+fi
+
+if [ -e "$CODEX_ROOT" ] && [ ! -d "$CODEX_ROOT" ]; then
+  echo "error: Codex home is not a directory: $CODEX_ROOT" >&2
+  exit 1
+fi
+
+if [ -L "$DEST" ]; then
+  echo "error: skill destination must not be a symlink: $DEST" >&2
+  exit 1
+fi
+
+if [ -e "$DEST" ] && [ ! -d "$DEST" ]; then
   echo "error: skill destination is not a directory: $DEST" >&2
   exit 1
 fi
@@ -19,7 +35,7 @@ while IFS= read -r skill_path; do
   name="$(basename "$source_dir")"
   target="$DEST/$name"
 
-  if grep -Fqx "$name" "$NAMES_FILE"; then
+  if grep -Fqx -e "$name" "$NAMES_FILE"; then
     echo "error: duplicate active skill name: $name" >&2
     exit 1
   fi
