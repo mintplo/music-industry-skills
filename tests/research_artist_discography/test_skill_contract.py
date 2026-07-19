@@ -37,6 +37,18 @@ class SkillContractTests(unittest.TestCase):
         text = (SKILL / "agents" / "openai.yaml").read_text(encoding="utf-8")
         self.assertIn('$research-artist-discography', text)
 
+    def test_skill_preserves_metric_and_access_boundaries(self):
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        source_policy = (SKILL / "references" / "source-policy.md").read_text(encoding="utf-8")
+        schema = (SKILL / "references" / "data-schema.md").read_text(encoding="utf-8")
+        report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
+        self.assertIn("Never estimate a missing number", skill)
+        self.assertIn("Never bypass Cloudflare", source_policy)
+        self.assertIn("shipment_net_returns", schema)
+        self.assertIn("retail_sale", schema)
+        self.assertIn("estimated_sale", schema)
+        self.assertIn("Do not place unlike units on one axis", report)
+
 
 if __name__ == "__main__":
     unittest.main()

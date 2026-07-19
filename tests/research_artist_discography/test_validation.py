@@ -57,6 +57,11 @@ class ValidationTests(unittest.TestCase):
         payload["releases"].append({"release_group_id": "release-1", "release_type": "album"})
         self.assertTrue(any("unique" in error for error in validate_dataset(payload)))
 
+    def test_empty_release_id_is_rejected(self):
+        payload = dataset()
+        payload["releases"][0]["release_group_id"] = ""
+        self.assertTrue(any("requires release_group_id" in error for error in validate_dataset(payload)))
+
     def test_unknown_artist_or_release_ids_are_rejected(self):
         payload = dataset()
         payload["observations"][0]["artist_id"] = "artist-2"

@@ -20,7 +20,7 @@ def validate_dataset(dataset: Dict[str, Any]) -> List[str]:
         errors.append("artist id and name are required")
     release_rows = dataset.get("releases", [])
     release_ids = {row.get("release_group_id") for row in release_rows}
-    if None in release_ids:
+    if any(not release_id for release_id in release_ids):
         errors.append("every release requires release_group_id")
     if len(release_ids) != len(release_rows):
         errors.append("release_group_id values must be unique")
