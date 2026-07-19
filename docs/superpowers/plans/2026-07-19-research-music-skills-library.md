@@ -520,6 +520,23 @@ def test_link_skills_uses_codex_home_and_does_not_replace_regular_files():
         )
         self.assertNotEqual(0, result.returncode)
         self.assertEqual("user-owned", target.read_text(encoding="utf-8"))
+
+def test_link_skills_does_not_replace_foreign_symlinks():
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        foreign = root / "foreign"
+        foreign.mkdir()
+        target_dir = root / "skills"
+        target_dir.mkdir()
+        target = target_dir / "research-music"
+        target.symlink_to(foreign, target_is_directory=True)
+        env = {**os.environ, "CODEX_HOME": directory}
+        result = subprocess.run(
+            [str(ROOT / "scripts" / "link-skills.sh")], cwd=ROOT, env=env,
+            text=True, capture_output=True,
+        )
+        self.assertNotEqual(0, result.returncode)
+        self.assertEqual(foreign, target.resolve())
 ```
 
 Include imports for `os`, `Path`, `subprocess`, `tempfile`, and `unittest`; define `ROOT = Path(__file__).resolve().parents[2]`.
@@ -559,9 +576,11 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 DEST="${CODEX_HOME:-$HOME/.codex}/skills"
 NAMES_FILE="$(mktemp)"
-trap 'rm -f "$NAMES_FILE"' EXIT
+SKILLS_FILE="$(mktemp)"
+trap 'rm -f "$NAMES_FILE" "$SKILLS_FILE"' EXIT
 
 mkdir -p "$DEST"
+"$REPO/scripts/list-skills.sh" > "$SKILLS_FILE"
 
 while IFS= read -r skill_path; do
   source_dir="$REPO/${skill_path%/SKILL.md}"
@@ -579,9 +598,25 @@ while IFS= read -r skill_path; do
     exit 1
   fi
 
+  if [ -L "$target" ]; then
+    current="$(readlink "$target")"
+    case "$current" in
+      "$REPO"/*) ;;
+      *)
+        echo "error: refusing to replace foreign symlink: $target -> $current" >&2
+        exit 1
+        ;;
+    esac
+  fi
+done < "$SKILLS_FILE"
+
+while IFS= read -r skill_path; do
+  source_dir="$REPO/${skill_path%/SKILL.md}"
+  name="$(basename "$source_dir")"
+  target="$DEST/$name"
   ln -sfn "$source_dir" "$target"
   echo "linked $name -> $source_dir"
-done < <("$REPO/scripts/list-skills.sh")
+done < "$SKILLS_FILE"
 ```
 
 Do not delete unrecognized files or stale links in this first version.
