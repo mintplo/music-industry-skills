@@ -3,9 +3,61 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 CODEX_ROOT="${CODEX_HOME:-$HOME/.codex}"
-while [ "$CODEX_ROOT" != "/" ] && [ "${CODEX_ROOT%/}" != "$CODEX_ROOT" ]; do
-  CODEX_ROOT="${CODEX_ROOT%/}"
-done
+
+validate_codex_root() {
+  local input="$1"
+  local current remainder component candidate
+
+  case "$input" in
+    /*) current="/" ;;
+    *) current="$(pwd -P)" ;;
+  esac
+  remainder="$input"
+
+  while :; do
+    while [ "${remainder#/}" != "$remainder" ]; do
+      remainder="${remainder#/}"
+    done
+    [ -n "$remainder" ] || break
+
+    case "$remainder" in
+      */*)
+        component="${remainder%%/*}"
+        remainder="${remainder#*/}"
+        ;;
+      *)
+        component="$remainder"
+        remainder=""
+        ;;
+    esac
+
+    case "$component" in
+      ""|.) continue ;;
+      ..)
+        if [ "$current" != "/" ]; then
+          current="${current%/*}"
+          [ -n "$current" ] || current="/"
+        fi
+        continue
+        ;;
+    esac
+
+    if [ "$current" = "/" ]; then
+      candidate="/$component"
+    else
+      candidate="$current/$component"
+    fi
+    if [ -L "$candidate" ]; then
+      echo "error: Codex home must not be a symlink; Codex home path contains a symlink: $candidate" >&2
+      return 1
+    fi
+    current="$candidate"
+  done
+
+  CODEX_ROOT="$current"
+}
+
+validate_codex_root "$CODEX_ROOT"
 if [ "$CODEX_ROOT" = "/" ]; then
   DEST="/skills"
 else

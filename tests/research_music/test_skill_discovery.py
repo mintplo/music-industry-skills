@@ -47,14 +47,15 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_link_skills_uses_codex_home_and_does_not_replace_regular_files(self):
         with tempfile.TemporaryDirectory() as directory:
-            env = {**os.environ, "CODEX_HOME": directory}
+            codex_home = Path(directory).resolve()
+            env = {**os.environ, "CODEX_HOME": str(codex_home)}
             subprocess.run(
                 [str(ROOT / "scripts" / "link-skills.sh")],
                 cwd=ROOT,
                 env=env,
                 check=True,
             )
-            target = Path(directory) / "skills" / "research-music"
+            target = codex_home / "skills" / "research-music"
             self.assertTrue(target.is_symlink())
             target.unlink()
             target.write_text("user-owned", encoding="utf-8")
@@ -72,7 +73,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_link_skills_does_not_replace_foreign_symlinks(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             foreign = root / "foreign"
             foreign.mkdir()
             target_dir = root / "skills"
@@ -87,7 +88,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_duplicate_leaf_names_are_rejected_before_any_mutation(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(
                 root,
                 "a/alpha",
@@ -105,7 +106,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_option_like_duplicate_leaf_names_are_rejected_before_any_mutation(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "a/-f", "z/-f")
             codex_home = root / "codex-home"
             codex_home.mkdir()
@@ -118,7 +119,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_symlinked_skill_destination_is_rejected_without_external_mutation(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/alpha")
             codex_home = root / "codex-home"
             codex_home.mkdir()
@@ -137,7 +138,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_symlinked_codex_home_is_rejected_without_external_mutation(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/alpha")
             external = root / "external"
             external.mkdir()
@@ -154,7 +155,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_symlinked_codex_home_with_trailing_slashes_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/alpha")
             external = root / "external"
             external.mkdir()
@@ -169,9 +170,44 @@ class SkillDiscoveryTests(unittest.TestCase):
             self.assertEqual(codex_home_inode, codex_home.lstat().st_ino)
             self.assertEqual([], list(external.iterdir()))
 
+    def test_symlinked_codex_home_with_repeated_dot_spelling_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            repo = self.make_repo(root, "group/alpha")
+            external = root / "external"
+            external.mkdir()
+            codex_home = root / "codex-home"
+            codex_home.symlink_to(external, target_is_directory=True)
+            codex_home_inode = codex_home.lstat().st_ino
+
+            result = self.run_linker(repo, f"{codex_home}/.//./")
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("Codex home path contains a symlink", result.stderr)
+            self.assertEqual(codex_home_inode, codex_home.lstat().st_ino)
+            self.assertEqual([], list(external.iterdir()))
+
+    def test_codex_home_beneath_symlinked_ancestor_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            repo = self.make_repo(root, "group/alpha")
+            external = root / "external"
+            external.mkdir()
+            ancestor = root / "ancestor"
+            ancestor.symlink_to(external, target_is_directory=True)
+            ancestor_inode = ancestor.lstat().st_ino
+            codex_home = ancestor / "codex-home"
+
+            result = self.run_linker(repo, codex_home)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("Codex home path contains a symlink", result.stderr)
+            self.assertEqual(ancestor_inode, ancestor.lstat().st_ino)
+            self.assertEqual([], list(external.iterdir()))
+
     def test_regular_file_conflict_is_rejected_without_partial_links(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/alpha", "group/zulu")
             target_dir = root / "codex-home" / "skills"
             target_dir.mkdir(parents=True)
@@ -186,7 +222,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_foreign_symlink_conflict_is_rejected_without_partial_links(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/alpha", "group/zulu")
             target_dir = root / "codex-home" / "skills"
             target_dir.mkdir(parents=True)
@@ -203,7 +239,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_symlink_to_another_repo_skill_is_foreign(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/alpha", "group/zulu")
             target_dir = root / "codex-home" / "skills"
             target_dir.mkdir(parents=True)
@@ -219,7 +255,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
     def test_correct_existing_link_is_idempotent(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             repo = self.make_repo(root, "group/research-music")
             codex_home = root / "codex-home"
 
