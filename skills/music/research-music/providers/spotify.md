@@ -24,7 +24,29 @@ use Client Credentials to obtain a short-lived access token for public catalog
 research. User authorization is not needed for the artist, album, and track
 searches supported here.
 
-From this skill directory, configure the included standard-library adapter:
+For an agent-driven research request, use this handshake from the skill
+directory:
+
+1. Run `python3 scripts/spotify_api.py check` without prompting for credentials.
+2. If access is missing and Spotify would materially improve the requested
+   branch, explain what it adds and ask whether the user wants to connect it.
+3. After explicit consent on macOS, run the native secure flow:
+
+```bash
+python3 scripts/spotify_api.py configure --gui
+```
+
+The command opens macOS dialogs for the Client ID and a hidden Client Secret,
+stores them in **macOS Keychain**, and immediately verifies token and catalog
+access. Never ask the user to paste a Client Secret into chat. The safe JSON
+result must not contain the credentials or access token. After success, retry
+`spotify_api.py check` or run the needed search.
+
+If the user declines, cancels, or setup fails, continue with the documented
+fallbacks. Do not make optional Spotify access a blocker for the research.
+
+For a person configuring directly in a terminal, the existing prompt remains
+available:
 
 ```bash
 python3 scripts/spotify_api.py configure
@@ -33,11 +55,7 @@ python3 scripts/spotify_api.py search artist "CORTIS" --market KR
 python3 scripts/spotify_api.py search album "CORTIS" --market KR --limit 10
 ```
 
-`spotify_api.py configure` prompts for the app Client ID and a hidden Client
-Secret, stores both in **macOS Keychain**, and immediately verifies token and
-catalog access. Never paste the secret into a research prompt or commit it to
-the repository. Environment variables take precedence when automation needs
-them:
+Environment variables take precedence when automation needs them:
 
 ```bash
 export SPOTIFY_CLIENT_ID="..."

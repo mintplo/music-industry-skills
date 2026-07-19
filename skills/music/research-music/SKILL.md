@@ -16,6 +16,16 @@ Build a **source stack** for the question: the smallest useful combination of pr
 5. When comparing numbers, read `references/metric-compatibility.md` and compare only compatible observations. Keep incompatible evidence separate.
 6. Synthesize in the shape the user asked for. Do not add sections the user did not ask for, and do not invent unavailable values.
 
+## Optional credentialed providers
+
+Select a credentialed provider only when it materially helps close a requested
+branch. Read its provider card and check access non-interactively. If access is
+missing, explain what the provider would add and ask whether the user wants to
+connect it. Never ask the user to paste a secret into chat. After consent, use
+the provider card's secure setup path and retry the check. If the user declines
+or setup fails, continue with the documented fallbacks and mark the branch
+access-dependent when needed.
+
 ## Branch pointers
 
 For a simple or single-fact request, use the common steps directly; do not load a recipe.
