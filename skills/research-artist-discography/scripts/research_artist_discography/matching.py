@@ -19,6 +19,11 @@ def classify_release_type(candidate: ReleaseCandidate) -> str:
     primary = candidate.primary_type.casefold().strip()
     secondary = {value.casefold().strip() for value in candidate.secondary_types}
     title = candidate.title.casefold()
+    raw_types = {normalize_text(value) for value in (candidate.primary_type,) + candidate.secondary_types}
+    if any(value in {"membersolo", "solo"} for value in raw_types):
+        return "member_solo"
+    if any(value in {"feature", "featured", "featuring"} for value in raw_types):
+        return "feature"
     if "compilation" in secondary:
         return "compilation"
     if "live" in secondary:
@@ -43,18 +48,28 @@ def classify_release_type(candidate: ReleaseCandidate) -> str:
 def _same_group(left: ReleaseCandidate, right: ReleaseCandidate) -> bool:
     if left.mbid and right.mbid:
         return left.mbid == right.mbid
+    if left.barcode and right.barcode and left.barcode == right.barcode:
+        return True
     if normalize_text(left.artist_name) != normalize_text(right.artist_name):
         return False
     if normalize_text(left.title) != normalize_text(right.title):
         return False
     if not left.first_release_date or not right.first_release_date:
-        return True
-    if len(left.first_release_date) < 10 or len(right.first_release_date) < 10:
-        length = min(len(left.first_release_date), len(right.first_release_date))
-        return left.first_release_date[:length] == right.first_release_date[:length]
+        return False
+    if len(left.first_release_date) == 4 or len(right.first_release_date) == 4:
+        return False
+    if len(left.first_release_date) == 7 or len(right.first_release_date) == 7:
+        return left.first_release_date[:7] == right.first_release_date[:7]
     left_date = date.fromisoformat(left.first_release_date[:10])
     right_date = date.fromisoformat(right.first_release_date[:10])
     return abs((left_date - right_date).days) <= 45
+
+
+def _has_hard_mbid_conflict(candidate: ReleaseCandidate, editions: Iterable[ReleaseCandidate]) -> bool:
+    return any(
+        candidate.mbid and edition.mbid and candidate.mbid != edition.mbid
+        for edition in editions
+    )
 
 
 def _record_id(candidates: List[ReleaseCandidate]) -> str:
@@ -69,7 +84,11 @@ def _record_id(candidates: List[ReleaseCandidate]) -> str:
 def group_release_candidates(candidates: Iterable[ReleaseCandidate]) -> List[ReleaseRecord]:
     groups: List[List[ReleaseCandidate]] = []
     for candidate in candidates:
-        group = next((items for items in groups if any(_same_group(candidate, existing) for existing in items)), None)
+        group = next((
+            items for items in groups
+            if not _has_hard_mbid_conflict(candidate, items)
+            and any(_same_group(candidate, existing) for existing in items)
+        ), None)
         if group is None:
             groups.append([candidate])
         else:

@@ -15,7 +15,7 @@ from research_artist_discography.matching import (
 from research_artist_discography.models import ReleaseCandidate
 
 
-def candidate(source, source_id, title, date, primary, secondary=(), mbid=None, tracks=None):
+def candidate(source, source_id, title, date, primary, secondary=(), mbid=None, tracks=None, barcode=None):
     return ReleaseCandidate(
         source=source,
         source_id=source_id,
@@ -24,6 +24,7 @@ def candidate(source, source_id, title, date, primary, secondary=(), mbid=None, 
         first_release_date=date,
         primary_type=primary,
         secondary_types=secondary,
+        barcode=barcode,
         mbid=mbid,
         source_url="https://example.com/%s" % source_id,
         track_count=tracks,
@@ -53,12 +54,53 @@ class MatchingTests(unittest.TestCase):
         ])
         self.assertEqual(1, len(records))
 
-    def test_partial_musicbrainz_dates_do_not_crash_grouping(self):
+    def test_year_month_musicbrainz_date_matches_an_exact_date_in_the_same_month(self):
         records = group_release_candidates([
             candidate("MusicBrainz", "rg-1", "First EP", "2025-01", "EP", mbid="rg-1"),
             candidate("iTunes", "99", "First EP", "2025-01-24", "Album", tracks=6),
         ])
         self.assertEqual(1, len(records))
+
+    def test_unidentified_candidate_cannot_bridge_conflicting_mbid_groups(self):
+        records = group_release_candidates([
+            candidate("MusicBrainz", "rg-1", "First EP", "2025-01-02", "EP", mbid="rg-1"),
+            candidate("iTunes", "99", "First EP", "2025-01-02", "EP"),
+            candidate("MusicBrainz", "rg-2", "First EP", "2025-01-02", "EP", mbid="rg-2"),
+        ])
+        self.assertEqual(2, len(records))
+        self.assertEqual({"rg:rg-1", "rg:rg-2"}, {record.release_group_id for record in records})
+
+    def test_missing_date_does_not_merge_a_repeated_title(self):
+        records = group_release_candidates([
+            candidate("one", "1", "Same Title", "", "Album"),
+            candidate("two", "2", "Same Title", "2025-01-01", "Album"),
+        ])
+        self.assertEqual(2, len(records))
+
+    def test_year_only_date_does_not_merge_a_repeated_title(self):
+        records = group_release_candidates([
+            candidate("one", "1", "Same Title", "2025", "Album"),
+            candidate("two", "2", "Same Title", "2025-01-01", "Album"),
+        ])
+        self.assertEqual(2, len(records))
+
+    def test_equal_barcode_is_a_positive_identifier_match(self):
+        records = group_release_candidates([
+            candidate("one", "1", "Same Title", "", "Album", barcode="8801234567890"),
+            candidate("two", "2", "Same Title (Japan Edition)", "2025", "Album", barcode="8801234567890"),
+        ])
+        self.assertEqual(1, len(records))
+
+    def test_classifies_member_solo_from_raw_secondary_type(self):
+        release = candidate("mb", "solo", "Solo", "2025-01-01", "Album", ("Member Solo",))
+        self.assertEqual("member_solo", classify_release_type(release))
+
+    def test_feature_records_are_excluded_by_the_default_filter(self):
+        records = group_release_candidates([
+            candidate("mb", "feature", "Feature", "2025-01-01", "Feature"),
+        ])
+        self.assertEqual("feature", records[0].release_type)
+        self.assertEqual([], filter_release_records(records))
 
     def test_default_filter_keeps_singles_and_excludes_compilations(self):
         records = group_release_candidates([
