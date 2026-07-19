@@ -7,10 +7,23 @@ Use official or primary sources first, then corroborated press, then reference-o
 ## Claims
 
 Place a direct, adjacent source with every material factual claim. Attribute interpretation and distinguish it from the source's stated facts.
+A generic listing, index, or search-result page may locate evidence but is not
+direct evidence for the items it lists. Cite the claim-specific item or page;
+when that page cannot be verified, close the claim as unavailable or
+access-dependent.
 
 ## Performance observations
 
-For each performance observation, retain source URL, market, period, measurement, observed_at, and official status.
+For every performance number, preserve its source URL, market, period,
+measurement definition, observation date, and official or unofficial status.
+Keep these semantics clear in prose, a table, or another shape
+that fits the question; no fixed labels or record template are required.
+
+Use the fewest decision-relevant metrics. Compare numbers only when their
+markets, definitions, units, and time windows are compatible, and keep
+unmatched observations separate. Attribute qualitative reaction or demand
+claims, state the sample and interpretation limits, and do not describe raw
+sales as conversion without a denominator.
 
 ## Missing and conflicting evidence
 

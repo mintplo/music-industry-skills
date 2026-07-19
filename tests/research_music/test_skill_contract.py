@@ -34,9 +34,22 @@ class ResearchMusicSkillContractTests(unittest.TestCase):
 
     def test_common_steps_end_on_question_requirements_not_a_template(self):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        catalog = (SKILL / "providers" / "CATALOG.md").read_text(encoding="utf-8")
+        evidence = (SKILL / "references" / "evidence-policy.md").read_text(
+            encoding="utf-8"
+        )
         self.assertIn("Every requested branch", text)
         self.assertIn("supported, unavailable, or access-dependent", text)
         self.assertIn("Do not add sections the user did not ask for", text)
+        self.assertNotIn("Source stack:", text + catalog)
+        self.assertIn("one provider family", catalog)
+        self.assertNotIn("complete per-observation field set", text)
+        self.assertNotIn("exactly one quantitative value", evidence)
+        for field in (
+            "source URL", "market", "period", "measurement", "observation date",
+            "official or unofficial",
+        ):
+            self.assertIn(field, evidence)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,12 @@
 # Provider Catalog
 
 A source stack loads every card needed to close the request, but no unrelated
-cards. Record why each selected provider belongs in the source stack.
+cards. Select each provider for a concrete role in the question and keep that
+reasoning available while researching; the final answer does not need a fixed
+source-stack declaration.
+Web discovery and the direct pages it finds count as one provider family.
+Treat crawling as distinct only when static extraction or browser rendering is
+actually used.
 
 | Need | Start with | Add when needed |
 | --- | --- | --- |

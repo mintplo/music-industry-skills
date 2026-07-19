@@ -34,4 +34,8 @@ For a simple or single-fact request, use the common steps directly; do not load 
 
 ## Completion criterion
 
-Every requested branch is closed as supported, unavailable, or access-dependent. Every material factual claim has a direct source; every performance number retains its market, period, measurement, and observation date. The answer contains no forced report sections outside the user's request.
+Every requested branch is closed as supported, unavailable, or access-dependent.
+Every material factual claim has a direct source; every performance number
+retains its source URL, market, period, measurement, observation date, and
+official or unofficial status. The answer contains no forced report sections
+outside the user's request.

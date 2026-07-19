@@ -27,8 +27,17 @@ operator-published, or attributable sources for the defined comparison.
 
 Read `../references/metric-compatibility.md` before comparing numbers. Retain
 market, metric, unit, measurement type, period basis, window length, source,
-and observation date. Show incompatible evidence separately and never create
-an overall synthetic score.
+and observation date for every entity and observation. Define relative windows
+such as `first week` with exact dates when they affect comparability.
+Show incompatible evidence separately and never create an overall synthetic
+score.
+
+Never award a winner from unmatched evidence, such as an artist-specific
+release with no corresponding release for the other artist. Keep that evidence
+separate and call the comparison unavailable, including in the conclusion.
+Treat raw sales as volume, not conversion, unless a relevant denominator makes
+conversion measurable. Attribute qualitative demand or reaction claims and
+state their sampling and interpretation limits.
 
 ## Completion criterion
 

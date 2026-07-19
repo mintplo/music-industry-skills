@@ -19,13 +19,16 @@ platform, and event posts, then verify the direct pages. Add
 [Web crawling](../providers/web-crawling.md) only when static access cannot
 review an allowed direct source. Use attributable press for reporting or
 reaction that primary sources do not establish. Add [YouTube](../providers/youtube.md)
-for an official MV or public channel observation, and
+when public video identity or observations are material to the campaign. Add
 [MusicBrainz](../providers/musicbrainz.md) only when release identity needs
 resolution.
 
 ## Evidence checks
 
 Preserve each post's publication time, publisher, market, and direct URL.
+Use claim-specific evidence for material campaign facts; indexes and roundup
+pages may aid discovery but should not be the sole support for a claim they do
+not directly establish.
 Label a schedule, teaser, or announced appearance as planned activity; label
 views, coverage, attendance, or other post-release signals as observations at
 their stated time. Do not infer reaction from an announcement.

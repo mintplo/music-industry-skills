@@ -43,6 +43,29 @@ class RecipeContractTests(unittest.TestCase):
             artist_and_album,
         )
 
+    def test_recipes_keep_evidence_guards_without_mechanical_output_protocols(self):
+        comparison = (SKILL / "recipes" / "artist-comparison.md").read_text(
+            encoding="utf-8"
+        )
+        campaign = (SKILL / "recipes" / "release-campaign.md").read_text(
+            encoding="utf-8"
+        )
+        trend = (SKILL / "recipes" / "market-trend.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("Never award a winner from unmatched evidence", comparison)
+        self.assertIn("denominator", comparison)
+        self.assertNotIn("full adjacent field set", comparison)
+        self.assertIn("claim-specific", campaign)
+        self.assertNotIn("sweep every retained dated timeline asset", campaign)
+        self.assertNotIn("genuinely distinct replacement", campaign)
+        self.assertIn("bounded", trend)
+        self.assertIn("sampling limits", trend)
+        self.assertNotIn("`Candidate pattern:`", trend)
+        self.assertNotIn("compound candidate", trend)
+        self.assertNotIn("name both provider families and their roles", trend)
+
 
 if __name__ == "__main__":
     unittest.main()

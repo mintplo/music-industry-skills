@@ -13,7 +13,10 @@ about a campaign, comparison, or market pattern.
 Identify the primary artist and the release group before deciding whether a
 specific edition, recording, or track is in scope. Determine whether the
 question asks for catalog facts, an official concept statement, or performance
-evidence. A single-album question never requires the full discography.
+evidence. When the request uses a relative response window such as initial or
+early, define its exact start and end before collection. Identify later momentum
+as outside that window rather than using it to close the early-response branch.
+A single-album question never requires the full discography.
 
 ## Source stack
 
