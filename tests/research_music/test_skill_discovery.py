@@ -33,6 +33,27 @@ class SkillDiscoveryTests(unittest.TestCase):
             capture_output=True,
         )
 
+    def run_linker_for(self, repo, target, root):
+        homes = {
+            "codex": root / "codex-home",
+            "claude": root / "claude-home",
+            "agents": root / "agents-home",
+        }
+        env = {
+            **os.environ,
+            "CODEX_HOME": str(homes["codex"]),
+            "CLAUDE_HOME": str(homes["claude"]),
+            "AGENTS_HOME": str(homes["agents"]),
+        }
+        result = subprocess.run(
+            [str(repo / "scripts" / "link-skills.sh"), target],
+            cwd=repo,
+            env=env,
+            text=True,
+            capture_output=True,
+        )
+        return result, homes
+
     def run_lister(self, repo):
         return subprocess.run(
             [str(repo / "scripts" / "list-skills.sh")],
@@ -173,6 +194,15 @@ class SkillDiscoveryTests(unittest.TestCase):
             )
         )
 
+    def test_repository_has_no_installable_skill_markers_outside_inventory(self):
+        listed = set(self.run_lister(ROOT).stdout.splitlines())
+        markers = {
+            path.relative_to(ROOT).as_posix()
+            for path in (ROOT / "skills").rglob("SKILL.md")
+        }
+
+        self.assertEqual(listed, markers)
+
     def test_optional_collector_is_owned_by_research_music(self):
         self.assertTrue(
             (
@@ -210,6 +240,84 @@ class SkillDiscoveryTests(unittest.TestCase):
 
             self.assertNotEqual(0, result.returncode)
             self.assertEqual("user-owned", target.read_text(encoding="utf-8"))
+
+    def test_link_skills_supports_claude_code_personal_skills(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+
+            result, homes = self.run_linker_for(ROOT, "claude", root)
+
+            target = homes["claude"] / "skills" / "research-music"
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertTrue(target.is_symlink())
+            self.assertEqual(
+                (ROOT / "skills" / "music" / "research-music").resolve(),
+                target.resolve(),
+            )
+            self.assertFalse(homes["codex"].exists())
+            self.assertFalse(homes["agents"].exists())
+
+    def test_link_skills_honors_claude_config_dir(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            official_home = root / "official-claude-config"
+            legacy_home = root / "legacy-claude-home"
+            env = {
+                **os.environ,
+                "CLAUDE_CONFIG_DIR": str(official_home),
+                "CLAUDE_HOME": str(legacy_home),
+            }
+
+            result = subprocess.run(
+                [str(ROOT / "scripts" / "link-skills.sh"), "claude"],
+                cwd=ROOT,
+                env=env,
+                text=True,
+                capture_output=True,
+            )
+
+            target = official_home / "skills" / "research-music"
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertTrue(target.is_symlink())
+            self.assertFalse(legacy_home.exists())
+
+    def test_link_skills_supports_cross_client_agents_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+
+            result, homes = self.run_linker_for(ROOT, "agents", root)
+
+            target = homes["agents"] / "skills" / "research-music"
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertTrue(target.is_symlink())
+            self.assertEqual(
+                (ROOT / "skills" / "music" / "research-music").resolve(),
+                target.resolve(),
+            )
+            self.assertFalse(homes["codex"].exists())
+            self.assertFalse(homes["claude"].exists())
+
+    def test_link_skills_rejects_unknown_target_without_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+
+            result, homes = self.run_linker_for(ROOT, "unknown", root)
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("usage:", result.stderr)
+            self.assertTrue(all(not home.exists() for home in homes.values()))
+
+    def test_readme_documents_cross_client_installation_and_invocation(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn(
+            "npx skills add mintplo/music-industry-skills "
+            "--skill research-music -g",
+            readme,
+        )
+        self.assertIn("./scripts/link-skills.sh claude", readme)
+        self.assertIn("/research-music", readme)
+        self.assertIn("$research-music", readme)
 
     def test_link_skills_does_not_replace_foreign_symlinks(self):
         with tempfile.TemporaryDirectory() as directory:

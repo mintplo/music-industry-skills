@@ -1,6 +1,6 @@
 ---
 name: research-music
-description: Research music artists, releases, songs, campaigns, charts, sales, video or public social signals, competitors, and market trends. Use when Codex needs to combine music APIs, official sites, web search, or permitted crawling to answer a music-industry question with sourced evidence.
+description: Use when researching music artists, releases, songs, campaigns, charts, sales, video or public social signals, competitors, or market trends from multiple sources.
 ---
 
 # Research Music

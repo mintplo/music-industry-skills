@@ -7,6 +7,14 @@ SKILL = ROOT / "skills" / "music" / "research-music"
 
 
 class ResearchMusicSkillContractTests(unittest.TestCase):
+    def test_agent_skills_frontmatter_is_product_agnostic(self):
+        text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        frontmatter = text.split("---", 2)[1]
+
+        self.assertIn("Use when", frontmatter)
+        self.assertNotIn("Codex", frontmatter)
+        self.assertNotIn("Claude", frontmatter)
+
     def test_core_skill_is_model_invoked_and_document_first(self):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertTrue(text.startswith("---\nname: research-music\n"))

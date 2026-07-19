@@ -2,9 +2,33 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-CODEX_ROOT="${CODEX_HOME:-$HOME/.codex}"
+TARGET="${1:-codex}"
 
-validate_codex_root() {
+if [ "$#" -gt 1 ]; then
+  echo "usage: $0 [codex|claude|agents]" >&2
+  exit 2
+fi
+
+case "$TARGET" in
+  codex)
+    CLIENT_LABEL="Codex"
+    CLIENT_ROOT="${CODEX_HOME:-$HOME/.codex}"
+    ;;
+  claude)
+    CLIENT_LABEL="Claude Code"
+    CLIENT_ROOT="${CLAUDE_CONFIG_DIR:-${CLAUDE_HOME:-$HOME/.claude}}"
+    ;;
+  agents)
+    CLIENT_LABEL="Agent Skills"
+    CLIENT_ROOT="${AGENTS_HOME:-$HOME/.agents}"
+    ;;
+  *)
+    echo "usage: $0 [codex|claude|agents]" >&2
+    exit 2
+    ;;
+esac
+
+validate_client_root() {
   local input="$1"
   local current remainder component candidate
 
@@ -48,13 +72,13 @@ validate_codex_root() {
       candidate="$current/$component"
     fi
     if [ -L "$candidate" ]; then
-      echo "error: Codex home must not be a symlink; Codex home path contains a symlink: $candidate" >&2
+      echo "error: $CLIENT_LABEL home must not be a symlink; $CLIENT_LABEL home path contains a symlink: $candidate" >&2
       return 1
     fi
     current="$candidate"
   done
 
-  CODEX_ROOT="$current"
+  CLIENT_ROOT="$current"
 }
 
 validate_skill_source() {
@@ -107,11 +131,11 @@ validate_skill_source() {
   fi
 }
 
-validate_codex_root "$CODEX_ROOT"
-if [ "$CODEX_ROOT" = "/" ]; then
+validate_client_root "$CLIENT_ROOT"
+if [ "$CLIENT_ROOT" = "/" ]; then
   DEST="/skills"
 else
-  DEST="$CODEX_ROOT/skills"
+  DEST="$CLIENT_ROOT/skills"
 fi
 NAMES_FILE="$(mktemp)"
 SKILLS_FILE="$(mktemp)"
@@ -119,13 +143,13 @@ trap 'rm -f "$NAMES_FILE" "$SKILLS_FILE"' EXIT
 
 "$REPO/scripts/list-skills.sh" > "$SKILLS_FILE"
 
-if [ -L "$CODEX_ROOT" ]; then
-  echo "error: Codex home must not be a symlink: $CODEX_ROOT" >&2
+if [ -L "$CLIENT_ROOT" ]; then
+  echo "error: $CLIENT_LABEL home must not be a symlink: $CLIENT_ROOT" >&2
   exit 1
 fi
 
-if [ -e "$CODEX_ROOT" ] && [ ! -d "$CODEX_ROOT" ]; then
-  echo "error: Codex home is not a directory: $CODEX_ROOT" >&2
+if [ -e "$CLIENT_ROOT" ] && [ ! -d "$CLIENT_ROOT" ]; then
+  echo "error: $CLIENT_LABEL home is not a directory: $CLIENT_ROOT" >&2
   exit 1
 fi
 

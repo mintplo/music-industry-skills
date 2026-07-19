@@ -1,3 +1,4 @@
 # Deprecated
 
-Historical skills are excluded from active listing and installation.
+Historical migration documents are stored here without `SKILL.md` entrypoints,
+so Agent Skills installers do not expose them as installable skills.
