@@ -102,6 +102,31 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual("feature", records[0].release_type)
         self.assertEqual([], filter_release_records(records))
 
+    def test_member_solo_edition_excludes_a_generic_canonical_album(self):
+        records = group_release_candidates([
+            candidate("MusicBrainz", "rg-1", "Solo", "2025-01-01", "Album", mbid="rg-1"),
+            candidate("store", "1", "Solo", "2025-01-01", "Album", ("Member Solo",)),
+        ])
+        self.assertEqual("member_solo", records[0].release_type)
+        self.assertFalse(records[0].default_included)
+
+    def test_feature_edition_excludes_a_generic_canonical_album(self):
+        records = group_release_candidates([
+            candidate("MusicBrainz", "rg-1", "Feature", "2025-01-01", "Album", mbid="rg-1"),
+            candidate("store", "1", "Feature", "2025-01-01", "Album", ("Feature",)),
+        ])
+        self.assertEqual("feature", records[0].release_type)
+        self.assertFalse(records[0].default_included)
+
+    def test_ambiguous_anonymous_candidate_remains_its_own_group(self):
+        records = group_release_candidates([
+            candidate("MusicBrainz", "rg-1", "Same Title", "2025-01-01", "Album", mbid="rg-1"),
+            candidate("MusicBrainz", "rg-2", "Same Title", "2025-01-01", "Album", mbid="rg-2"),
+            candidate("store", "1", "Same Title", "2025-01-01", "Album"),
+        ])
+        self.assertEqual(3, len(records))
+        self.assertEqual(1, sum(len(record.editions) == 1 and record.release_group_id.startswith("local:") for record in records))
+
     def test_default_filter_keeps_singles_and_excludes_compilations(self):
         records = group_release_candidates([
             candidate("mb", "1", "Digital", "2025-01-01", "Single", tracks=1),

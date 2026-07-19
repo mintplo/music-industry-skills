@@ -8,6 +8,14 @@ from .models import ReleaseCandidate, ReleaseRecord
 
 
 DEFAULT_TYPES = {"studio_album", "ep", "single_album", "digital_single", "repackage"}
+EXCLUDED_TYPE_PRECEDENCE = (
+    "member_solo",
+    "feature",
+    "ost",
+    "live_album",
+    "compilation",
+    "remix_album",
+)
 
 
 def normalize_text(value: str) -> str:
@@ -81,26 +89,35 @@ def _record_id(candidates: List[ReleaseCandidate]) -> str:
     return "local:%s" % hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
 
 
+def _group_release_type(candidates: List[ReleaseCandidate], canonical: ReleaseCandidate) -> str:
+    classifications = [classify_release_type(candidate) for candidate in candidates]
+    for release_type in EXCLUDED_TYPE_PRECEDENCE:
+        if release_type in classifications:
+            return release_type
+    canonical_type = classify_release_type(canonical)
+    if canonical_type != "other":
+        return canonical_type
+    return next((release_type for release_type in classifications if release_type != "other"), "other")
+
+
 def group_release_candidates(candidates: Iterable[ReleaseCandidate]) -> List[ReleaseRecord]:
     groups: List[List[ReleaseCandidate]] = []
     for candidate in candidates:
-        group = next((
+        matching_groups = [
             items for items in groups
             if not _has_hard_mbid_conflict(candidate, items)
             and any(_same_group(candidate, existing) for existing in items)
-        ), None)
-        if group is None:
+        ]
+        if len(matching_groups) != 1:
             groups.append([candidate])
         else:
-            group.append(candidate)
+            matching_groups[0].append(candidate)
 
     records = []
     for items in groups:
         items.sort(key=lambda item: (item.source, item.source_id))
         canonical = next((item for item in items if item.mbid), items[0])
-        release_type = classify_release_type(canonical)
-        if release_type == "other":
-            release_type = next((classify_release_type(item) for item in items if classify_release_type(item) != "other"), "other")
+        release_type = _group_release_type(items, canonical)
         records.append(ReleaseRecord(
             release_group_id=_record_id(items),
             artist_name=canonical.artist_name,
