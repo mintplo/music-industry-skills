@@ -24,6 +24,11 @@ without a MusicKit token. Apple Music API requests require the appropriate
 developer token described in the [Apple Music API documentation](https://developer.apple.com/documentation/applemusicapi);
 do not attempt tokenless access to protected endpoints.
 
+For complete, deterministic catalog normalization, the optional collector at
+`skills/music/research-music/scripts/collect_discography_data.py` can normalize
+iTunes Search album records with MusicBrainz release groups. It is not required
+for ordinary research.
+
 ## Inputs and outputs
 
 Search by term or use lookup identifiers and record the storefront, collection

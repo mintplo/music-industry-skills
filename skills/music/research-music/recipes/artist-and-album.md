@@ -24,6 +24,10 @@ Start with [MusicBrainz](../providers/musicbrainz.md) and, when useful,
 [Wikidata](../providers/wikidata.md) to resolve identity and release groups.
 Add [Apple Music](../providers/apple-music.md) or
 [Spotify](../providers/spotify.md) only for relevant catalog cross-checks.
+Only when the request actually requires a complete release inventory, optionally
+use `skills/music/research-music/scripts/collect_discography_data.py` for
+deterministic catalog normalization; do not run it for ordinary artist or
+single-release questions.
 Use [Web search](../providers/web-search.md) to find official artist, label,
 distributor, or press pages for concept and release claims; use
 [Web crawling](../providers/web-crawling.md) only for an allowed direct-page

@@ -7,7 +7,10 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = Path(__file__).with_name("fixtures")
-sys.path.insert(0, os.fspath(ROOT / "skills" / "research-artist-discography" / "scripts"))
+sys.path.insert(
+    0,
+    os.fspath(ROOT / "skills" / "music" / "research-music" / "scripts"),
+)
 
 from research_artist_discography.charts import parse_circle_album, parse_oricon_album
 

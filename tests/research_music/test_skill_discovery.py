@@ -41,9 +41,31 @@ class SkillDiscoveryTests(unittest.TestCase):
             capture_output=True,
             check=True,
         )
-        lines = result.stdout.splitlines()
-        self.assertIn("skills/music/research-music/SKILL.md", lines)
-        self.assertFalse(any("/deprecated/" in line for line in lines))
+        active_skill_lines = result.stdout.splitlines()
+        self.assertIn(
+            "skills/music/research-music/SKILL.md", active_skill_lines
+        )
+        self.assertFalse(
+            any("/deprecated/" in line for line in active_skill_lines)
+        )
+        self.assertFalse(
+            any(
+                "research-artist-discography" in line
+                for line in active_skill_lines
+            )
+        )
+
+    def test_optional_collector_is_owned_by_research_music(self):
+        self.assertTrue(
+            (
+                ROOT
+                / "skills"
+                / "music"
+                / "research-music"
+                / "scripts"
+                / "collect_discography_data.py"
+            ).is_file()
+        )
 
     def test_link_skills_uses_codex_home_and_does_not_replace_regular_files(self):
         with tempfile.TemporaryDirectory() as directory:

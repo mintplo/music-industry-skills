@@ -7,7 +7,14 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "skills" / "research-artist-discography" / "scripts" / "collect_discography_data.py"
+SCRIPT = (
+    ROOT
+    / "skills"
+    / "music"
+    / "research-music"
+    / "scripts"
+    / "collect_discography_data.py"
+)
 FIXTURES = Path(__file__).with_name("fixtures")
 
 

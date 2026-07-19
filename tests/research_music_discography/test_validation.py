@@ -7,7 +7,10 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, os.fspath(ROOT / "skills" / "research-artist-discography" / "scripts"))
+sys.path.insert(
+    0,
+    os.fspath(ROOT / "skills" / "music" / "research-music" / "scripts"),
+)
 
 from research_artist_discography.validation import validate_dataset, write_observations_csv
 
