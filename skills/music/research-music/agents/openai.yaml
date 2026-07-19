@@ -1,0 +1,4 @@
+interface:
+  display_name: "Music Industry Researcher"
+  short_description: "음악 아티스트·발매·캠페인·성과·시장 정보를 출처 기반으로 조사"
+  default_prompt: "Use $research-music to research this music-industry question with the best available APIs and web sources."
