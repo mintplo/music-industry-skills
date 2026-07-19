@@ -21,6 +21,11 @@ TOKEN_URL = "https://accounts.spotify.com/api/token"
 API_BASE = "https://api.spotify.com/v1"
 KEYCHAIN_SERVICE = "music-industry-skills.spotify"
 SEARCH_TYPES = ("artist", "album", "track")
+GUI_TITLE = "Music Industry Skills — Spotify"
+CLIENT_ID_DIALOG = f'''set response to display dialog "Enter your Spotify app Client ID." default answer "" buttons {{"Cancel", "Continue"}} default button "Continue" with title "{GUI_TITLE}"
+return text returned of response'''
+CLIENT_SECRET_DIALOG = f'''set response to display dialog "Enter your Spotify app Client Secret." default answer "" buttons {{"Cancel", "Connect"}} default button "Connect" with title "{GUI_TITLE}" with hidden answer
+return text returned of response'''
 
 
 class Credentials(NamedTuple):
@@ -139,6 +144,36 @@ def store_credentials(
     except (FileNotFoundError, subprocess.CalledProcessError):
         raise CredentialError("Could not save Spotify credentials to macOS Keychain.") from None
     return {"storage": "macos-keychain", "service": KEYCHAIN_SERVICE}
+
+
+def _native_dialog(script: str, runner: Runner) -> str:
+    try:
+        result = runner(
+            ["osascript", "-e", script],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        raise CredentialError(
+            "Spotify configuration was cancelled or the native dialog is unavailable."
+        ) from None
+    return result.stdout.strip()
+
+
+def prompt_gui_credentials(
+    *,
+    platform_name: str | None = None,
+    runner: Runner = subprocess.run,
+) -> Credentials:
+    """Collect app credentials through native macOS dialogs without echoing them."""
+
+    platform_name = sys.platform if platform_name is None else platform_name
+    if platform_name != "darwin":
+        raise CredentialError("Spotify GUI configuration is available on macOS only.")
+    client_id = _native_dialog(CLIENT_ID_DIALOG, runner)
+    client_secret = _native_dialog(CLIENT_SECRET_DIALOG, runner)
+    return _validate_credentials(client_id, client_secret)
 
 
 def _default_transport(request: Request) -> tuple[dict[str, Any], Mapping[str, str]]:
@@ -331,15 +366,18 @@ def _print_json(payload: Mapping[str, Any]) -> None:
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
-def _configure() -> dict[str, Any]:
+def _configure(*, gui: bool = False) -> dict[str, Any]:
     if sys.platform != "darwin":
         raise CredentialError(
             "`configure` currently stores credentials in macOS Keychain. "
             "Set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET on this platform."
         )
-    client_id = input("Spotify Client ID: ").strip()
-    client_secret = getpass.getpass("Spotify Client Secret (hidden): ").strip()
-    credentials = _validate_credentials(client_id, client_secret)
+    if gui:
+        credentials = prompt_gui_credentials()
+    else:
+        client_id = input("Spotify Client ID: ").strip()
+        client_secret = getpass.getpass("Spotify Client Secret (hidden): ").strip()
+        credentials = _validate_credentials(client_id, client_secret)
     storage = store_credentials(credentials)
     check = SpotifyApi(credentials).check()
     return {"configured": True, **storage, "check": check}
@@ -350,9 +388,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="Secure Spotify catalog access for the research-music skill."
     )
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser(
+    configure = commands.add_parser(
         "configure",
         help="Store app credentials in macOS Keychain and verify the connection.",
+    )
+    configure.add_argument(
+        "--gui",
+        action="store_true",
+        help="Collect credentials in native macOS dialogs for agent-driven setup.",
     )
     commands.add_parser("check", help="Verify authentication and catalog search.")
     search = commands.add_parser("search", help="Search Spotify catalog metadata.")
@@ -367,7 +410,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.command == "configure":
-            result = _configure()
+            result = _configure(gui=args.gui)
         else:
             client = SpotifyApi(load_credentials())
             if args.command == "check":

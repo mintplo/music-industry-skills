@@ -39,6 +39,19 @@ class RecordingRunner:
         return subprocess.CompletedProcess(args, 0, stdout=self.stdout, stderr="")
 
 
+class SequencedRunner:
+    def __init__(self, outputs):
+        self.outputs = iter(outputs)
+        self.calls = []
+
+    def __call__(self, args, **kwargs):
+        self.calls.append((args, kwargs))
+        output = next(self.outputs)
+        if isinstance(output, Exception):
+            raise output
+        return subprocess.CompletedProcess(args, 0, stdout=output, stderr="")
+
+
 class FakeSpotifyTransport:
     def __init__(self):
         self.requests = []
@@ -86,6 +99,58 @@ class SpotifyCredentialTests(unittest.TestCase):
         self.assertIn("configure", result.stdout)
         self.assertIn("check", result.stdout)
         self.assertIn("search", result.stdout)
+
+    def test_configure_help_exposes_native_gui_mode(self):
+        load_module()
+
+        result = subprocess.run(
+            [os.fspath(SCRIPT), "configure", "--help"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+
+        self.assertIn("--gui", result.stdout)
+
+    def test_gui_prompt_uses_hidden_native_secret_dialog(self):
+        spotify = load_module()
+        runner = SequencedRunner(["gui-id\n", "gui-secret\n"])
+
+        credentials = spotify.prompt_gui_credentials(
+            platform_name="darwin",
+            runner=runner,
+        )
+
+        self.assertEqual(spotify.Credentials("gui-id", "gui-secret"), credentials)
+        self.assertEqual(2, len(runner.calls))
+        client_id_call, secret_call = runner.calls
+        self.assertEqual("osascript", client_id_call[0][0])
+        self.assertIn("Client ID", client_id_call[0][-1])
+        self.assertIn("Client Secret", secret_call[0][-1])
+        self.assertIn("with hidden answer", secret_call[0][-1])
+        self.assertTrue(client_id_call[1]["capture_output"])
+        self.assertTrue(secret_call[1]["capture_output"])
+        self.assertNotIn("gui-secret", json.dumps(runner.calls))
+
+    def test_gui_prompt_treats_dialog_cancellation_as_a_safe_error(self):
+        spotify = load_module()
+        cancelled = subprocess.CalledProcessError(1, ["osascript"])
+
+        with self.assertRaisesRegex(spotify.CredentialError, "cancelled"):
+            spotify.prompt_gui_credentials(
+                platform_name="darwin",
+                runner=SequencedRunner([cancelled]),
+            )
+
+    def test_gui_prompt_is_macos_only(self):
+        spotify = load_module()
+
+        with self.assertRaisesRegex(spotify.CredentialError, "macOS only"):
+            spotify.prompt_gui_credentials(
+                platform_name="linux",
+                runner=SequencedRunner([]),
+            )
 
     def test_environment_credentials_take_precedence(self):
         spotify = load_module()
@@ -361,7 +426,6 @@ class SpotifyDocumentationTests(unittest.TestCase):
         ):
             self.assertIn(expected, provider)
         self.assertIn("spotify_api.py configure", readme)
-
 
 if __name__ == "__main__":
     unittest.main()
