@@ -189,7 +189,10 @@ class SkillContractTests(unittest.TestCase):
             report,
         )
         self.assertIn(
-            "If it lacks that mapping, remove the numeric part and keep the statement qualitative.",
+            "If a quantified certification multiplier, level, threshold, or numeric label lacks "
+            "a complete evidence ID, remove the entire quantified certification or numeric label. "
+            "To retain the underlying claim, use a genuinely qualitative statement such as "
+            "`a certification is reported` with a normal adjacent source citation.",
             report,
         )
         self.assertIn(
