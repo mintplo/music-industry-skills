@@ -168,8 +168,28 @@ class SkillContractTests(unittest.TestCase):
         report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
         self.assertIn("Before finalizing, run a mandatory numeric audit.", skill)
         self.assertIn(
+            "Treat quantified certification labels as performance numbers in the mandatory "
+            "audit.",
+            skill,
+        )
+        self.assertIn(
             "Scan every performance number and quantified performance claim in prose and "
             "tables, including a number cited only to dismiss it.",
+            report,
+        )
+        self.assertIn(
+            "Treat quantified certifications and numeric labels—including multipliers, levels, "
+            "and thresholds such as `3× Platinum`, ranks, percentages, and K/M abbreviations—as "
+            "performance numbers.",
+            report,
+        )
+        self.assertIn(
+            "Require every such mention, including one in limitation or reference-only prose, "
+            "to cite a complete evidence row by its evidence ID.",
+            report,
+        )
+        self.assertIn(
+            "If it lacks that mapping, remove the numeric part and keep the statement qualitative.",
             report,
         )
         self.assertIn(
@@ -217,6 +237,21 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn(required_rule, source_policy)
         self.assertIn(
             "A bibliography or links later in the report do not satisfy this requirement.",
+            report,
+        )
+        self.assertIn(
+            "Apply this rule to factual premises in interpretation, change, and "
+            "marketing-implications sections.",
+            report,
+        )
+        self.assertIn(
+            "The `interpretation` label exempts only the analytical inference, not embedded "
+            "factual premises.",
+            report,
+        )
+        self.assertIn(
+            "Repeat the direct citation beside each factual premise, or state the inference "
+            "without restating unlinked facts.",
             report,
         )
         self.assertIn("Keep interpretations separately labeled.", report)
