@@ -1,7 +1,7 @@
 # 음악 산업 리서치 스킬 시리즈 설계
 
 - 작성일: 2026-07-19
-- 상태: 설계 방향 승인, 문서 검토 대기
+- 상태: 대체됨 — `2026-07-19-music-research-skills-library-design.md`가 제품 구조를 대체함
 - 첫 산출물: `research-artist-discography` Codex 스킬
 - 장기 산출물: `music-industry-research` Codex 플러그인과 전문 스킬 시리즈
 
