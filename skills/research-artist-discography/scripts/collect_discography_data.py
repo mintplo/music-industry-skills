@@ -2,8 +2,10 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
 
 from research_artist_discography.charts import parse_circle_album, parse_oricon_album
 from research_artist_discography.matching import (
@@ -27,31 +29,36 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def select_artist(candidates, artist_mbid, warnings):
+    if not candidates:
+        raise RuntimeError("MusicBrainz returned no artist candidates")
+    if artist_mbid:
+        selected = next((row for row in candidates if row["id"] == artist_mbid), None)
+        if selected is None:
+            raise RuntimeError("--artist-mbid was not present in MusicBrainz candidates")
+        return selected
+    if len(candidates) > 1:
+        warnings.append("MusicBrainz top artist candidate selected; verify same-name ambiguity")
+    return candidates[0]
+
+
 def load_catalog(artist_name, fixture_dir, artist_mbid, country):
     warnings = []
     if fixture_dir:
         artist_rows = parse_musicbrainz_artists(
             read_json(fixture_dir / "musicbrainz_artist.json")
         )
+        selected = select_artist(artist_rows, artist_mbid, warnings)
         musicbrainz = parse_musicbrainz_release_groups(
             artist_name, read_json(fixture_dir / "musicbrainz_release_groups.json")
         )
         itunes = parse_itunes_albums(
             artist_name, read_json(fixture_dir / "itunes_albums.json")
         )
-        return artist_rows[0]["id"], musicbrainz + itunes, warnings
+        return selected["id"], musicbrainz + itunes, warnings
 
     candidates = search_musicbrainz_artist(artist_name)
-    if not candidates:
-        raise RuntimeError("MusicBrainz returned no artist candidates")
-    selected = (
-        next((row for row in candidates if row["id"] == artist_mbid), None)
-        if artist_mbid else candidates[0]
-    )
-    if selected is None:
-        raise RuntimeError("--artist-mbid was not present in MusicBrainz candidates")
-    if len(candidates) > 1 and not artist_mbid:
-        warnings.append("MusicBrainz top artist candidate selected; verify same-name ambiguity")
+    selected = select_artist(candidates, artist_mbid, warnings)
     musicbrainz = fetch_musicbrainz_release_groups(artist_name, selected["id"])
     itunes = fetch_itunes_albums(artist_name, country)
     return selected["id"], musicbrainz + itunes, warnings
@@ -90,56 +97,108 @@ def parse_args():
     return parser.parse_args()
 
 
+def _preflight_parent(path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.parent.is_dir():
+        raise RuntimeError("output parent is not a directory: %s" % path.parent)
+
+
+def _stage_text(path, content=None, dataset=None):
+    staged_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="",
+            dir=str(path.parent),
+            prefix=".%s." % path.name,
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            staged_path = Path(handle.name)
+            if dataset is None:
+                handle.write(content)
+            else:
+                write_observations_csv(dataset, handle)
+        return staged_path
+    except OSError:
+        if staged_path:
+            staged_path.unlink(missing_ok=True)
+        raise
+
+
+def write_outputs(payload, output_path, csv_path):
+    paths = [output_path] + ([csv_path] if csv_path else [])
+    staged_paths = []
+    try:
+        for path in paths:
+            _preflight_parent(path)
+        staged_paths.append(_stage_text(
+            output_path,
+            content=json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        ))
+        if csv_path:
+            staged_paths.append(_stage_text(csv_path, dataset=payload))
+        for path, staged_path in zip(paths, staged_paths):
+            os.replace(staged_path, path)
+    except OSError as error:
+        raise RuntimeError("could not write outputs: %s" % error) from error
+    finally:
+        for staged_path in staged_paths:
+            if staged_path.exists():
+                staged_path.unlink()
+
+
 def main():
-    args = parse_args()
-    artist_id, candidates, warnings = load_catalog(
-        args.artist, args.fixture_dir, args.artist_mbid, args.country
-    )
-    all_records = group_release_candidates(candidates)
-    records = filter_release_records(
-        all_records, include_non_default=args.include_non_default
-    )
-    observed_at = datetime.now(timezone.utc).isoformat()
-    chart_entries = []
-    if args.circle_json:
-        chart_entries.extend(parse_circle_album(
-            read_json(args.circle_json),
-            "https://circlechart.kr/page_chart/album.circle",
-            args.period_start,
-            args.period_end,
-        ))
-    if args.oricon_html:
-        chart_entries.extend(parse_oricon_album(
-            args.oricon_html.read_text(encoding="utf-8"),
-            "https://www.oricon.co.jp/rank/ja/w/",
-            args.period_start,
-            args.period_end,
-        ))
-    observations = attach_chart_entries(
-        chart_entries, records, artist_id, observed_at, warnings
-    )
-    payload = {
-        "schema_version": "1.0",
-        "artist": {"id": artist_id, "name": args.artist},
-        "releases": [to_dict(record) for record in records],
-        "observations": [to_dict(row) for row in observations],
-        "warnings": warnings,
-        "collected_at": observed_at,
-    }
-    errors = validate_dataset(payload)
-    if errors:
-        for error in errors:
-            print(error, file=sys.stderr)
+    try:
+        args = parse_args()
+        artist_id, candidates, warnings = load_catalog(
+            args.artist, args.fixture_dir, args.artist_mbid, args.country
+        )
+        all_records = group_release_candidates(candidates)
+        analysis_records = filter_release_records(
+            all_records, include_non_default=args.include_non_default
+        )
+        observed_at = datetime.now(timezone.utc).isoformat()
+        chart_entries = []
+        if args.circle_json:
+            chart_entries.extend(parse_circle_album(
+                read_json(args.circle_json),
+                "https://circlechart.kr/page_chart/album.circle",
+                args.period_start,
+                args.period_end,
+            ))
+        if args.oricon_html:
+            chart_entries.extend(parse_oricon_album(
+                args.oricon_html.read_text(encoding="utf-8"),
+                "https://www.oricon.co.jp/rank/ja/w/",
+                args.period_start,
+                args.period_end,
+            ))
+        observations = attach_chart_entries(
+            chart_entries, analysis_records, artist_id, observed_at, warnings
+        )
+        payload = {
+            "schema_version": "1.0",
+            "artist": {"id": artist_id, "name": args.artist},
+            "releases": [to_dict(record) for record in all_records],
+            "analysis_release_group_ids": [
+                record.release_group_id for record in analysis_records
+            ],
+            "observations": [to_dict(row) for row in observations],
+            "warnings": warnings,
+            "collected_at": observed_at,
+        }
+        errors = validate_dataset(payload)
+        if errors:
+            for error in errors:
+                print(error, file=sys.stderr)
+            return 2
+        write_outputs(payload, args.output, args.csv)
+        return 0
+    except RuntimeError as error:
+        print(error, file=sys.stderr)
         return 2
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
-    if args.csv:
-        args.csv.parent.mkdir(parents=True, exist_ok=True)
-        with args.csv.open("w", encoding="utf-8", newline="") as handle:
-            write_observations_csv(payload, handle)
-    return 0
 
 
 if __name__ == "__main__":
