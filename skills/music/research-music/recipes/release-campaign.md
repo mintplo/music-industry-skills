@@ -25,10 +25,11 @@ resolution.
 
 ## Evidence checks
 
-Preserve each post's publication time, publisher, market, and direct URL.
-Use claim-specific evidence for material campaign facts; indexes and roundup
-pages may aid discovery but should not be the sole support for a claim they do
-not directly establish.
+Preserve the publication time, publisher, market, and source needed to support
+each material campaign claim. Use adjacent, claim-specific evidence.
+One official campaign page, index, or roundup may support multiple material events when its own content directly substantiates each claim. A generic page
+that does not actually support a specific claim is insufficient and remains a
+discovery aid.
 Label a schedule, teaser, or announced appearance as planned activity; label
 views, coverage, attendance, or other post-release signals as observations at
 their stated time. Do not infer reaction from an announcement.

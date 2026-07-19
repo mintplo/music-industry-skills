@@ -7,9 +7,10 @@ Use official or primary sources first, then corroborated press, then reference-o
 ## Claims
 
 Place a direct, adjacent source with every material factual claim. Attribute interpretation and distinguish it from the source's stated facts.
-A generic listing, index, or search-result page may locate evidence but is not
-direct evidence for the items it lists. Cite the claim-specific item or page;
-when that page cannot be verified, close the claim as unavailable or
+One official page, index, or roundup may support multiple material claims when
+its own content directly substantiates each claim. A generic listing, index, or
+search-result page that does not actually support the specific claim is only a
+discovery aid; use claim-specific evidence or close the claim as unavailable or
 access-dependent.
 
 ## Performance observations

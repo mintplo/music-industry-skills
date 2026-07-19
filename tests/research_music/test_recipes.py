@@ -58,6 +58,11 @@ class RecipeContractTests(unittest.TestCase):
         self.assertIn("denominator", comparison)
         self.assertNotIn("full adjacent field set", comparison)
         self.assertIn("claim-specific", campaign)
+        self.assertIn(
+            "One official campaign page, index, or roundup may support multiple material events",
+            campaign,
+        )
+        self.assertIn("directly substantiates each claim", campaign)
         self.assertNotIn("sweep every retained dated timeline asset", campaign)
         self.assertNotIn("genuinely distinct replacement", campaign)
         self.assertIn("bounded", trend)
