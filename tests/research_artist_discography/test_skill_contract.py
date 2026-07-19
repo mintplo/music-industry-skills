@@ -87,12 +87,20 @@ class SkillContractTests(unittest.TestCase):
             report,
         )
         self.assertIn(
-            "Show a recent-N candidate ledger after applying the documented filters.", skill
+            "For a latest-N or recent-N selection request, show a recent-N candidate ledger "
+            "after applying the documented filters.",
+            skill,
         )
         self.assertIn(
-            "List every considered release in normalized date order, mark it `eligible`, "
-            "`excluded`, or `uncertain` with its reason, and select exactly the first N "
-            "eligible rows.",
+            "Recent-N candidate ledger only for a latest-N or recent-N selection request",
+            report,
+        )
+        self.assertIn(
+            "After building the master inventory, apply explicit role, type, period, and "
+            "album filters. Sort the remaining considered releases by normalized first-release "
+            "date descending, with unknown dates last. Then mark every considered release "
+            "`eligible`, `excluded`, or `uncertain` with its reason and select exactly the "
+            "first N eligible rows.",
             report,
         )
         self.assertIn(
@@ -104,6 +112,7 @@ class SkillContractTests(unittest.TestCase):
 
     def test_output_recipe_requires_evidence_ids_and_metric_visualization_decisions(self):
         report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
+        self.assertIn("Create a timeline for release history.", report)
         self.assertIn(
             "Assign a stable evidence ID to every complete numeric evidence row.", report
         )

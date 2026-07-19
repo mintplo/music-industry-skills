@@ -27,7 +27,7 @@ Start from the artist name (아티스트 이름). Treat an album name as an opti
 Use the visible report structure in `references/report-format.md`.
 
 1. Use exactly one canonical row per discovered release group, including excluded and uncertain releases. Derive every filtered view, comparison, and release card from that master inventory.
-2. Show a recent-N candidate ledger after applying the documented filters. Keep every considered release in the ledger through selection; select only from its eligible rows.
+2. For a latest-N or recent-N selection request, show a recent-N candidate ledger after applying the documented filters. Keep every considered release in the ledger through selection; select only from its eligible rows.
 3. Give every complete numeric evidence row a stable evidence ID. Cite that ID when later prose or a table repeats its performance number.
 4. Create the release-history timeline. For every metric family used in comparison, create its comparable chart or state that metric family's concrete omission rationale adjacent to it.
 

@@ -4,7 +4,7 @@
 
 1. Scope, artist identity, collection date, and missing-source warning
 2. Complete master inventory
-3. Recent-N candidate ledger when the request filters or selects releases
+3. Recent-N candidate ledger only for a latest-N or recent-N selection request
 4. Release metadata, concept, positioning, and promotion matrix
 5. Sales and chart evidence with measurement definitions
 6. YouTube and other accessible public signals with observation times
@@ -16,7 +16,7 @@
 
 Build the master inventory before analysis and derive every later release view from it. Every master-inventory row must include first-release date, normalized type, role/status, and selection eligibility. Use one canonical row for each discovered release group, including excluded and uncertain releases; edition identifiers may remain in that row. A category summary cannot replace individually itemized excluded or uncertain rows, and those rows must not be labeled default-eligible.
 
-Show a recent-N candidate ledger after applying the documented filters. List every considered release in normalized date order, mark it `eligible`, `excluded`, or `uncertain` with its reason, and select exactly the first N eligible rows. An official standalone `digital_single` remains eligible unless the documented default-type or role rules exclude it. Never substitute a lower candidate because data is unavailable. Retain the selected row and report `데이터 없음` or `비교 불가` for the unavailable metric.
+For a latest-N or recent-N selection request, show a recent-N candidate ledger. After building the master inventory, apply explicit role, type, period, and album filters. Sort the remaining considered releases by normalized first-release date descending, with unknown dates last. Then mark every considered release `eligible`, `excluded`, or `uncertain` with its reason and select exactly the first N eligible rows. An official standalone `digital_single` remains eligible unless the documented default-type or role rules exclude it. Never substitute a lower candidate because data is unavailable. Retain the selected row and report `데이터 없음` or `비교 불가` for the unavailable metric.
 
 ## Drill-down
 
