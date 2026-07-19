@@ -19,9 +19,10 @@ assume Spotify catalog fields match another platform's catalog fields.
 
 Create a Spotify app and obtain an access token through the documented
 [Web API](https://developer.spotify.com/documentation/web-api) authorization
-flow. Use client credentials for eligible app-only endpoints and user
-authorization only when an endpoint requires a user's data or scopes; do not
-ask for credentials when a fallback can close the request.
+flow. Spotify's current Web API documentation states that a Spotify Premium account is required.
+Use client credentials for eligible app-only endpoints and
+user authorization only when an endpoint requires a user's data or scopes; do
+not ask for credentials when a fallback can close the request.
 
 ## Inputs and outputs
 

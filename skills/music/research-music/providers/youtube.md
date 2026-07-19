@@ -18,9 +18,9 @@ YouTube Analytics data without the channel owner's authorized access.
 ## Access
 
 Use the [YouTube Data API reference](https://developers.google.com/youtube/v3/docs)
-with a Google project and API credentials. Use OAuth only for methods requiring
-user authorization; unauthenticated-public access is limited to public data.
-Budget requests using the official [quota-cost guidance](https://developers.google.com/youtube/v3/determine_quota_cost).
+with a Google project and API credentials. Every Data API request requires an API key or OAuth 2.0 token.
+API-key access is limited to public data. Use OAuth for methods requiring user
+authorization. Budget requests using the official [quota-cost guidance](https://developers.google.com/youtube/v3/determine_quota_cost).
 
 ## Inputs and outputs
 

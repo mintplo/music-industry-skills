@@ -34,6 +34,20 @@ class ProviderCatalogTests(unittest.TestCase):
                 self.assertRegex(text, r"https://")
                 self.assertNotRegex(text, r"\b(T[B]D|T[O]DO|FIX[M]E)\b")
 
+    def test_spotify_access_records_the_documented_premium_prerequisite(self):
+        text = (PROVIDERS / "spotify.md").read_text(encoding="utf-8")
+        self.assertIn("Spotify Premium account", text)
+        self.assertIn("access token", text)
+
+    def test_youtube_access_requires_api_key_or_oauth_for_public_data(self):
+        text = (PROVIDERS / "youtube.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "Every Data API request requires an API key or OAuth 2.0 token.",
+            text,
+        )
+        self.assertIn("API-key access is limited to public data.", text)
+        self.assertNotIn("unauthenticated-public access", text)
+
 
 if __name__ == "__main__":
     unittest.main()
