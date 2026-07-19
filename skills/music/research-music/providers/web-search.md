@@ -14,7 +14,10 @@ Treating search snippets, result rankings, or an unsourced aggregator as final e
 
 ## Access
 
-Use the active runtime's web tool when available; otherwise state that discovery is access-dependent and use supplied links.
+Use the active runtime's web tool when available; otherwise state that discovery
+is access-dependent and use supplied links. When the runtime is OpenAI-based,
+consult the current [web-search guidance](https://developers.openai.com/api/docs/guides/tools-web-search),
+but do not assume that every runtime exposes the same interface.
 
 ## Inputs and outputs
 
@@ -22,7 +25,9 @@ Query with the entity, market, date range, and claim type; retain the direct pag
 
 ## Evidence
 
-Prefer primary and official pages, check dates before relying on current claims, and cite the direct supporting link rather than a search-results page.
+Authority tier: discovery only; authority belongs to the direct source found.
+Prefer primary and official pages, check dates before relying on current claims,
+and cite the direct supporting link rather than a search-results page.
 
 ## Limits and terms
 

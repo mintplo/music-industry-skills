@@ -22,7 +22,9 @@ Search names, titles, dates, and existing MBIDs; retain returned artist, release
 
 ## Evidence
 
-Cite the relevant MusicBrainz entity page or API result for identification, and corroborate material release facts with an official source when possible.
+Authority tier: community-maintained reference metadata. Cite the relevant
+MusicBrainz entity page or API result for identification, and corroborate
+material release facts with an official source when possible.
 
 ## Limits and terms
 
