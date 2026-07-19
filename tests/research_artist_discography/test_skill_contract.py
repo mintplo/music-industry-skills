@@ -67,6 +67,68 @@ class SkillContractTests(unittest.TestCase):
             skill,
         )
 
+    def test_output_recipe_requires_one_itemized_master_inventory_and_recent_ledger(self):
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
+        self.assertIn("Create one complete master inventory before analysis.", skill)
+        self.assertIn(
+            "Use exactly one canonical row per discovered release group, including excluded "
+            "and uncertain releases.",
+            skill,
+        )
+        self.assertIn(
+            "Every master-inventory row must include first-release date, normalized type, "
+            "role/status, and selection eligibility.",
+            report,
+        )
+        self.assertIn(
+            "A category summary cannot replace individually itemized excluded or uncertain rows, "
+            "and those rows must not be labeled default-eligible.",
+            report,
+        )
+        self.assertIn(
+            "Show a recent-N candidate ledger after applying the documented filters.", skill
+        )
+        self.assertIn(
+            "List every considered release in normalized date order, mark it `eligible`, "
+            "`excluded`, or `uncertain` with its reason, and select exactly the first N "
+            "eligible rows.",
+            report,
+        )
+        self.assertIn(
+            "An official standalone `digital_single` remains eligible unless the "
+            "documented default-type or role rules exclude it.",
+            report,
+        )
+        self.assertIn("Never substitute a lower candidate because data is unavailable.", report)
+
+    def test_output_recipe_requires_evidence_ids_and_metric_visualization_decisions(self):
+        report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "Assign a stable evidence ID to every complete numeric evidence row.", report
+        )
+        self.assertIn(
+            "Cite that evidence ID whenever later prose or a table repeats a performance "
+            "number; otherwise keep the later claim qualitative.",
+            report,
+        )
+        self.assertIn(
+            "Use the evidence ID instead of duplicating the complete provenance fields when "
+            "the later claim maps to that row.",
+            report,
+        )
+        self.assertIn(
+            "For every metric family used in comparison, create its comparable chart when "
+            "comparable numeric observations exist.",
+            report,
+        )
+        self.assertIn(
+            "When omitting a chart, state its concrete insufficiency or omission rationale "
+            "adjacent to that metric family.",
+            report,
+        )
+        self.assertIn("A prose comparison is not a substitute for a required chart.", report)
+
     def test_numeric_tables_keep_provenance_and_unofficial_labels(self):
         report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
         source_policy = (SKILL / "references" / "source-policy.md").read_text(encoding="utf-8")
@@ -102,7 +164,7 @@ class SkillContractTests(unittest.TestCase):
             report,
         )
         self.assertIn(
-            "Map each claim by evidence ID or same-row fields to one complete evidence row.",
+            "Map each later performance claim by evidence ID to one complete evidence row.",
             report,
         )
         self.assertIn(

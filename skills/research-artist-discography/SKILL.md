@@ -10,7 +10,7 @@ Start from the artist name (아티스트 이름). Treat an album name as an opti
 ## Workflow
 
 1. Resolve the artist before collecting releases. Ask only when same-name candidates remain genuinely ambiguous.
-2. Build the complete release inventory from at least two catalog sources when possible.
+2. Build the complete release inventory from at least two catalog sources when possible. Create one complete master inventory before analysis.
 3. Include studio albums, EPs/mini albums, single albums, digital singles, and repackages by default.
 4. Preserve member solos, features, OST tracks, live albums, compilations, and remix albums separately; exclude them from default comparisons unless requested.
 5. Group country and format editions under a release group without deleting edition identifiers.
@@ -21,6 +21,15 @@ Start from the artist name (아티스트 이름). Treat an album name as an opti
 10. Keep facts, missing data, conflicts, and interpretation visibly separate.
 11. Return the entire release inventory before reducing detail for a long discography.
 12. Before finalizing, run a mandatory numeric audit. Follow `references/report-format.md` for the claim-to-evidence check.
+
+## Required report recipe
+
+Use the visible report structure in `references/report-format.md`.
+
+1. Use exactly one canonical row per discovered release group, including excluded and uncertain releases. Derive every filtered view, comparison, and release card from that master inventory.
+2. Show a recent-N candidate ledger after applying the documented filters. Keep every considered release in the ledger through selection; select only from its eligible rows.
+3. Give every complete numeric evidence row a stable evidence ID. Cite that ID when later prose or a table repeats its performance number.
+4. Create the release-history timeline. For every metric family used in comparison, create its comparable chart or state that metric family's concrete omission rationale adjacent to it.
 
 ## Filters and release classification
 
