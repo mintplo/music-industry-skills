@@ -29,6 +29,20 @@ class RecipeContractTests(unittest.TestCase):
                 self.assertNotIn("must always return", text.casefold())
                 self.assertNotIn("Provider Registry", text)
 
+    def test_simple_single_fact_requests_use_common_steps_without_a_recipe(self):
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        artist_and_album = (SKILL / "recipes" / "artist-and-album.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "For a simple or single-fact request, use the common steps directly; do not load a recipe.",
+            skill,
+        )
+        self.assertIn(
+            "Do not load this recipe for a simple or single-fact request.",
+            artist_and_album,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

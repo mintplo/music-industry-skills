@@ -2,9 +2,11 @@
 
 ## Use this branch
 
-Use for a question about an artist, release, album, song, track list, or
-discography. Combine this branch with another relevant branch when the request
-also asks about a campaign, comparison, or market pattern.
+Use for multi-part or branch-specific research about an artist, release, album,
+song, track list, or discography.
+Do not load this recipe for a simple or single-fact request.
+Combine this branch with another relevant branch when the request also asks
+about a campaign, comparison, or market pattern.
 
 ## Questions to resolve
 

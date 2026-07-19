@@ -18,18 +18,19 @@ Build a **source stack** for the question: the smallest useful combination of pr
 
 ## Branch pointers
 
-- For an **artist, release, album, song, track-list, or discography** request, read
+For a simple or single-fact request, use the common steps directly; do not load a recipe.
+
+- For multi-part or branch-specific research about an **artist, release, album, song, track-list, or discography**, read
   [`recipes/artist-and-album.md`](recipes/artist-and-album.md) only when that
   branch appears in the user's request.
-- For a **rollout, teaser, promotion, media, or comeback-campaign** request,
-  read [`recipes/release-campaign.md`](recipes/release-campaign.md) only when
-  that branch appears in the user's request.
-- For **artist or release comparisons**, read
-  [`recipes/artist-comparison.md`](recipes/artist-comparison.md) only when that
+- For multi-part or branch-specific research about a **rollout, teaser, promotion, media, or comeback-campaign**, read
+  [`recipes/release-campaign.md`](recipes/release-campaign.md) only when that
   branch appears in the user's request.
-- For a **genre, platform, country, audience, or market-pattern** request,
-  read [`recipes/market-trend.md`](recipes/market-trend.md) only when that
-  branch appears in the user's request.
+- For multi-part or branch-specific research with **artist or release comparisons**, read [`recipes/artist-comparison.md`](recipes/artist-comparison.md)
+  only when that branch appears in the user's request.
+- For multi-part or branch-specific research about a **genre, platform, country, audience, or market-pattern**, read
+  [`recipes/market-trend.md`](recipes/market-trend.md) only when that branch
+  appears in the user's request.
 
 ## Completion criterion
 
