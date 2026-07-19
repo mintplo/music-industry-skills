@@ -15,17 +15,20 @@ Start from the artist name (아티스트 이름). Treat an album name as an opti
 4. Preserve member solos, features, OST tracks, live albums, compilations, and remix albums separately; exclude them from default comparisons unless requested.
 5. Group country and format editions under a release group without deleting edition identifiers.
 6. Collect current performance evidence from official sources first. Never estimate a missing number.
-7. Collect release concepts and promotion from official introductions, press releases, artist channels, and attributable interviews; attach a source to every claim.
+7. Collect release concepts and promotion from official introductions, press releases, artist channels, and attributable interviews; give every factual claim an adjacent direct citation in the same bullet or table cell.
 8. Collect YouTube and other accessible public signals with their observation time; report authenticated SNS data as unavailable when credentials are absent.
 9. Apply period, release-type, latest-N, and album-name filters only after preserving the entire release inventory.
 10. Keep facts, missing data, conflicts, and interpretation visibly separate.
 11. Return the entire release inventory before reducing detail for a long discography.
+12. Before finalizing, run a mandatory numeric audit. Follow `references/report-format.md` for the claim-to-evidence check.
 
 ## Filters and release classification
 
 `앨범` or `recent albums` means chronological `studio_album`, `ep`, `single_album`, and `repackage` release groups. For recent-N, sort those qualifying release groups by normalized first-release date descending (unknown dates last), then take N. `발매작` or `releases` means every default release type, including `digital_single`. Filters reduce detail only after preserving the full inventory. Never omit a qualifying release merely to improve metric comparability; retain it and show `데이터 없음` or `비교 불가`.
 
 Do not classify album tracks, track videos, or pre-release promotional content as standalone singles unless an official catalog or source shows a separate release group. Preserve uncertain classification as a warning.
+
+When a release has both a default form and an excluded role, apply excluded-role precedence in this order: `member_solo`, `feature`, `ost`, `live_album`, `compilation`, `remix_album`. Exclude it from default recent-N analysis and preserve it separately. If sources do not resolve the classification, mark it `uncertain` and do not place it in direct recent-N comparison until clarified. Preserve the uncertain release separately with its warning.
 
 Read `references/source-policy.md` before selecting or crawling sources. Read `references/data-schema.md` before combining observations or exporting JSON/CSV. Read `references/report-format.md` before composing the final brief or visualization.
 

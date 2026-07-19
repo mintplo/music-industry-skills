@@ -92,6 +92,64 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn(required_rule, source_policy)
         self.assertIn("Preserve uncertain classification as a warning.", skill)
 
+    def test_skill_requires_a_pre_final_audit_of_every_performance_number(self):
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
+        self.assertIn("Before finalizing, run a mandatory numeric audit.", skill)
+        self.assertIn(
+            "Scan every performance number and quantified performance claim in prose and "
+            "tables, including a number cited only to dismiss it.",
+            report,
+        )
+        self.assertIn(
+            "Map each claim by evidence ID or same-row fields to one complete evidence row.",
+            report,
+        )
+        self.assertIn(
+            "If no complete mapping exists, remove the number or state the claim "
+            "qualitatively without it.",
+            report,
+        )
+        self.assertIn(
+            "Release dates and catalog track counts may follow catalog citation rules; "
+            "this exception never applies to performance claims.",
+            report,
+        )
+
+    def test_excluded_roles_take_precedence_over_default_release_forms(self):
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        source_policy = (SKILL / "references" / "source-policy.md").read_text(encoding="utf-8")
+        precedence = (
+            "When a release has both a default form and an excluded role, apply excluded-role "
+            "precedence in this order: `member_solo`, `feature`, `ost`, `live_album`, "
+            "`compilation`, `remix_album`."
+        )
+        self.assertIn(precedence, skill)
+        self.assertIn(precedence, source_policy)
+        self.assertIn(
+            "Exclude it from default recent-N analysis and preserve it separately.", skill
+        )
+        self.assertIn(
+            "If sources do not resolve the classification, mark it `uncertain` and do not "
+            "place it in direct recent-N comparison until clarified.",
+            skill,
+        )
+
+    def test_concept_and_promotion_facts_require_adjacent_direct_citations(self):
+        report = (SKILL / "references" / "report-format.md").read_text(encoding="utf-8")
+        source_policy = (SKILL / "references" / "source-policy.md").read_text(encoding="utf-8")
+        required_rule = (
+            "Give every factual concept or promotion claim an adjacent direct citation in "
+            "the same bullet or table cell."
+        )
+        self.assertIn(required_rule, report)
+        self.assertIn(required_rule, source_policy)
+        self.assertIn(
+            "A bibliography or links later in the report do not satisfy this requirement.",
+            report,
+        )
+        self.assertIn("Keep interpretations separately labeled.", report)
+
 
 if __name__ == "__main__":
     unittest.main()

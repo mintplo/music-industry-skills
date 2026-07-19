@@ -10,6 +10,8 @@
 
 For every number preserve source name, URL, market, period, observation time, measurement type, source tier, and a short evidence note. Report unavailable data as unavailable.
 
+Give every factual concept or promotion claim an adjacent direct citation in the same bullet or table cell. A bibliography or links later in the report are insufficient. Keep interpretation visibly separate from sourced facts.
+
 ## Provider roles
 
 - MusicBrainz: identifiers and release groups; respect one request per second and review commercial terms before company-scale use.
@@ -26,6 +28,8 @@ For every number preserve source name, URL, market, period, observation time, me
 ## Release classification
 
 Do not classify album tracks, track videos, or pre-release promotional content as standalone singles unless an official catalog or source shows a separate release group. Preserve uncertain classification as a warning.
+
+When a release has both a default form and an excluded role, apply excluded-role precedence in this order: `member_solo`, `feature`, `ost`, `live_album`, `compilation`, `remix_album`. Exclude the release from default recent-N analysis and preserve it separately. When sources conflict or remain silent, mark the classification `uncertain`, retain the warning, and keep the release out of direct recent-N comparison until clarified.
 
 ## Access rules
 
