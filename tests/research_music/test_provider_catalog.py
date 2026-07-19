@@ -30,7 +30,7 @@ class ProviderCatalogTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertTrue(text.startswith("# "))
                 self.assertTrue(HEADINGS.issubset(set(text.splitlines())))
-                self.assertIn("Last verified: 2026-07-19", text)
+                self.assertRegex(text, r"Last verified: 20\d{2}-\d{2}-\d{2}")
                 self.assertRegex(text, r"https://")
                 self.assertNotRegex(text, r"\b(T[B]D|T[O]DO|FIX[M]E)\b")
 

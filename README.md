@@ -96,6 +96,32 @@ MusicBrainz, Apple Music, Wikidata, YouTube, Spotify, Circle Chart, Oricon,
 스킬은 값을 추측해 채우는 대신, 확인된 정보와 접근할 수 없는 정보를 구분해
 답하도록 설계되어 있습니다.
 
+### Spotify 연결하기 (선택)
+
+Spotify 앱을 만들었다면 별도 라이브러리 설치 없이 저장소 폴더에서 한 번만 아래
+명령을 실행하면 됩니다.
+
+```bash
+python3 skills/music/research-music/scripts/spotify_api.py configure
+```
+
+Client ID를 붙여 넣고, 화면에 표시되지 않는 Client Secret 입력란에 비밀키를
+넣으면 macOS Keychain에 저장한 뒤 연결까지 자동 확인합니다. 비밀키를 AI 대화나
+GitHub에 올리지 마세요. 이후 상태 확인과 카탈로그 검색은 다음처럼 실행할 수
+있습니다.
+
+```bash
+python3 skills/music/research-music/scripts/spotify_api.py check
+python3 skills/music/research-music/scripts/spotify_api.py search artist "CORTIS" --market KR
+python3 skills/music/research-music/scripts/spotify_api.py search album "CORTIS" --market KR
+```
+
+이 연결은 아티스트·앨범·트랙의 Spotify 카탈로그 식별과 발매 메타데이터를
+보강합니다. 앨범 판매량이나 실제 스트리밍 횟수를 제공하지는 않으므로, 그런
+질문은 차트·공식 발표·다른 데이터 공급자와 조합합니다. 자세한 제한과
+환경변수 방식은 [Spotify 공급자 문서](./skills/music/research-music/providers/spotify.md)를
+참고하세요.
+
 ## 호환성
 
 `research-music`은 표준 `SKILL.md`의 `name`과 `description`, 상대경로 리소스만
