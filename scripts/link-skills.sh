@@ -57,6 +57,56 @@ validate_codex_root() {
   CODEX_ROOT="$current"
 }
 
+validate_skill_source() {
+  local skill_path="$1"
+  local current="$REPO" remainder="$skill_path" component candidate
+
+  case "$skill_path" in
+    skills/*/SKILL.md) ;;
+    *)
+      echo "error: unsafe skill source in inventory: $skill_path" >&2
+      return 1
+      ;;
+  esac
+
+  while :; do
+    case "$remainder" in
+      */*)
+        component="${remainder%%/*}"
+        remainder="${remainder#*/}"
+        ;;
+      *)
+        component="$remainder"
+        remainder=""
+        ;;
+    esac
+
+    case "$component" in
+      ""|.|..)
+        echo "error: unsafe skill source in inventory: $skill_path" >&2
+        return 1
+        ;;
+      deprecated|in-progress|node_modules)
+        echo "error: unsafe skill source is excluded: $skill_path" >&2
+        return 1
+        ;;
+    esac
+
+    candidate="$current/$component"
+    if [ -L "$candidate" ]; then
+      echo "error: unsafe skill source contains a symlink: $skill_path" >&2
+      return 1
+    fi
+    current="$candidate"
+    [ -n "$remainder" ] || break
+  done
+
+  if [ ! -f "$current" ]; then
+    echo "error: unsafe skill source is not a regular file: $skill_path" >&2
+    return 1
+  fi
+}
+
 validate_codex_root "$CODEX_ROOT"
 if [ "$CODEX_ROOT" = "/" ]; then
   DEST="/skills"
@@ -90,6 +140,7 @@ if [ -e "$DEST" ] && [ ! -d "$DEST" ]; then
 fi
 
 while IFS= read -r skill_path; do
+  validate_skill_source "$skill_path"
   source_dir="$REPO/${skill_path%/SKILL.md}"
   name="$(basename "$source_dir")"
   target="$DEST/$name"

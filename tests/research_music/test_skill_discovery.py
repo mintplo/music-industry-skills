@@ -33,6 +33,124 @@ class SkillDiscoveryTests(unittest.TestCase):
             capture_output=True,
         )
 
+    def run_lister(self, repo):
+        return subprocess.run(
+            [str(repo / "scripts" / "list-skills.sh")],
+            cwd=repo,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+
+    def test_fixture_discovery_lists_only_nested_active_regular_skill_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            repo = self.make_repo(
+                root,
+                "music/음악 연구/active skill",
+                "deprecated/old skill",
+                "in-progress/experimental skill",
+            )
+
+            result = self.run_lister(repo)
+
+            self.assertEqual(
+                ["skills/music/음악 연구/active skill/SKILL.md"],
+                result.stdout.splitlines(),
+            )
+
+    def test_unsafe_skill_markers_and_symlinked_components_are_not_discovered_or_installed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            repo = self.make_repo(root, "music/정상 skill")
+            skills = repo / "skills"
+
+            directory_marker = skills / "directory-marker" / "SKILL.md"
+            directory_marker.mkdir(parents=True)
+
+            foreign_marker = root / "foreign-SKILL.md"
+            foreign_marker.write_text("foreign", encoding="utf-8")
+            marker_link = skills / "marker-link" / "SKILL.md"
+            marker_link.parent.mkdir()
+            marker_link.symlink_to(foreign_marker)
+
+            foreign_skill = root / "foreign" / "linked-component-skill"
+            foreign_skill.mkdir(parents=True)
+            (foreign_skill / "SKILL.md").write_text(
+                "---\nname: foreign\n---\n", encoding="utf-8"
+            )
+            (skills / "linked-component").symlink_to(
+                foreign_skill, target_is_directory=True
+            )
+
+            listed = self.run_lister(repo)
+            codex_home = root / "codex-home"
+            linked = self.run_linker(repo, codex_home)
+
+            self.assertEqual(
+                ["skills/music/정상 skill/SKILL.md"],
+                listed.stdout.splitlines(),
+            )
+            self.assertEqual(0, linked.returncode, linked.stderr)
+            installed = codex_home / "skills"
+            self.assertEqual(
+                ["정상 skill"],
+                sorted(path.name for path in installed.iterdir()),
+            )
+            self.assertTrue((installed / "정상 skill").is_symlink())
+
+    def test_linker_rejects_unsafe_inventory_before_any_mutation(self):
+        unsafe_entries = {
+            "directory marker": "skills/directory-marker/SKILL.md",
+            "symlink marker": "skills/marker-link/SKILL.md",
+            "symlinked component": "skills/linked-component/SKILL.md",
+            "in-progress marker": "skills/in-progress/experimental/SKILL.md",
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            fixture_root = Path(directory).resolve()
+            for label, unsafe_entry in unsafe_entries.items():
+                with self.subTest(label=label):
+                    root = fixture_root / label
+                    repo = self.make_repo(
+                        root,
+                        "active/alpha",
+                        "in-progress/experimental",
+                    )
+                    skills = repo / "skills"
+
+                    (skills / "directory-marker" / "SKILL.md").mkdir(
+                        parents=True
+                    )
+                    foreign_marker = root / "foreign-SKILL.md"
+                    foreign_marker.write_text("foreign", encoding="utf-8")
+                    marker_link = skills / "marker-link" / "SKILL.md"
+                    marker_link.parent.mkdir()
+                    marker_link.symlink_to(foreign_marker)
+                    foreign_skill = root / "foreign-skill"
+                    foreign_skill.mkdir()
+                    (foreign_skill / "SKILL.md").write_text(
+                        "---\nname: foreign\n---\n", encoding="utf-8"
+                    )
+                    (skills / "linked-component").symlink_to(
+                        foreign_skill, target_is_directory=True
+                    )
+
+                    lister = repo / "scripts" / "list-skills.sh"
+                    lister.write_text(
+                        "#!/usr/bin/env bash\n"
+                        f"printf '%s\\n' 'skills/active/alpha/SKILL.md' "
+                        f"'{unsafe_entry}'\n",
+                        encoding="utf-8",
+                    )
+                    lister.chmod(0o755)
+                    codex_home = root / "codex-home"
+
+                    result = self.run_linker(repo, codex_home)
+
+                    self.assertNotEqual(0, result.returncode)
+                    self.assertIn("unsafe skill source", result.stderr)
+                    self.assertFalse((codex_home / "skills").exists())
+
     def test_list_skills_finds_nested_active_skill_and_excludes_deprecated(self):
         result = subprocess.run(
             [str(ROOT / "scripts" / "list-skills.sh")],
