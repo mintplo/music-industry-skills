@@ -146,6 +146,22 @@ class CollectorCliTests(unittest.TestCase):
             self.assertFalse(output.exists())
             self.assertFalse(csv_output.exists())
 
+    def test_same_json_and_csv_target_is_rejected_before_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "combined-output"
+            result = subprocess.run([
+                sys.executable, str(SCRIPT), "Example Artist",
+                "--fixture-dir", str(FIXTURES),
+                "--circle-json", str(FIXTURES / "circle_album_week.json"),
+                "--period-start", "2025-01-01",
+                "--period-end", "2025-01-07",
+                "--output", str(output),
+                "--csv", str(output),
+            ], text=True, capture_output=True)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("--output and --csv must be different paths", result.stderr)
+            self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

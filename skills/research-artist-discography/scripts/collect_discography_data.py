@@ -128,6 +128,8 @@ def _stage_text(path, content=None, dataset=None):
 
 
 def write_outputs(payload, output_path, csv_path):
+    if csv_path and output_path.resolve(strict=False) == csv_path.resolve(strict=False):
+        raise RuntimeError("--output and --csv must be different paths")
     paths = [output_path] + ([csv_path] if csv_path else [])
     staged_paths = []
     try:
