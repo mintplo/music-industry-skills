@@ -21,6 +21,12 @@ Start from the artist name (아티스트 이름). Treat an album name as an opti
 10. Keep facts, missing data, conflicts, and interpretation visibly separate.
 11. Return the entire release inventory before reducing detail for a long discography.
 
+## Filters and release classification
+
+`앨범` or `recent albums` means chronological `studio_album`, `ep`, `single_album`, and `repackage` release groups. For recent-N, sort those qualifying release groups by normalized first-release date descending (unknown dates last), then take N. `발매작` or `releases` means every default release type, including `digital_single`. Filters reduce detail only after preserving the full inventory. Never omit a qualifying release merely to improve metric comparability; retain it and show `데이터 없음` or `비교 불가`.
+
+Do not classify album tracks, track videos, or pre-release promotional content as standalone singles unless an official catalog or source shows a separate release group. Preserve uncertain classification as a warning.
+
 Read `references/source-policy.md` before selecting or crawling sources. Read `references/data-schema.md` before combining observations or exporting JSON/CSV. Read `references/report-format.md` before composing the final brief or visualization.
 
 If `scripts/collect_discography_data.py` exists, use it when deterministic catalog normalization is useful. Web research remains necessary for current chart evidence, concepts, promotion, and sources not implemented by the script.

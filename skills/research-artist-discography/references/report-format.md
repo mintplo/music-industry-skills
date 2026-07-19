@@ -15,6 +15,10 @@
 
 For a named release, keep the full inventory visible and add a detailed release card. Compare only same-market, same-period, same-unit, same-measurement observations.
 
+## Numeric evidence fields
+
+Every numeric evidence row or table cell must expose source tier, source URL, market, period/window, `observed_at`, measurement type/unit, and confidence. Use compact columns or a per-row source block immediately adjacent to the value. A separate paragraph does not satisfy this requirement.
+
 ## Visualization
 
 Create a timeline for release history. Create line or bar charts only for comparable numeric observations. Put rank on a reversed rank axis when supported. Do not place unlike units on one axis and do not create a synthetic overall score. If comparable data is insufficient, use a table and state why a chart was omitted.

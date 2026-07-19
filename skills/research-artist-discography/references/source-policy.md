@@ -19,8 +19,13 @@ For every number preserve source name, URL, market, period, observation time, me
 - Circle Album Chart: shipments net of returns; keep separate from Circle Retail Album point-of-sale data. Treat the page's internal JSON route as undocumented and low-frequency only.
 - Oricon: label public page values with exactly what the page exposes. Never infer sales from rank.
 - YouTube Data API: public video/channel observations when a key exists; preserve collection time and quota limits.
+- Kworb and other single-source unofficial trackers: assign source tier `C`, label as non-official, and never present it as YouTube Analytics.
 - Instagram, TikTok, and X: do not make competitor data a credential-free requirement. Use official authenticated interfaces only when later authorized.
 - NamuWiki and other wikis: reference-only, short evidence, original link, no bulk commercial corpus, no access-control bypass.
+
+## Release classification
+
+Do not classify album tracks, track videos, or pre-release promotional content as standalone singles unless an official catalog or source shows a separate release group. Preserve uncertain classification as a warning.
 
 ## Access rules
 
