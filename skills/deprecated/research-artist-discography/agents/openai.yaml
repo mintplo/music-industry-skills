@@ -1,4 +1,0 @@
-interface:
-  display_name: "Artist Discography Research"
-  short_description: "아티스트의 전체 발매작과 성과를 출처 기반으로 조사"
-  default_prompt: "Use $research-artist-discography to research an artist’s full discography and compare release performance."

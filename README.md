@@ -176,8 +176,6 @@ cd music-industry-skills
 skills/
   music/
     research-music/     # 현재 사용 가능한 범용 음악 리서치 스킬
-  in-progress/          # 아직 배포하지 않는 실험적 스킬
-  deprecated/           # 이전 버전 보관
 scripts/
   list-skills.sh        # 배포 대상 스킬 확인
   link-skills.sh        # Codex·Claude Code·Agent Skills 경로에 연결

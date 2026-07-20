@@ -63,6 +63,11 @@ class SkillDiscoveryTests(unittest.TestCase):
             check=True,
         )
 
+    def test_repository_has_no_status_bucket_directories(self):
+        for name in ("deprecated", "in-progress"):
+            with self.subTest(name=name):
+                self.assertFalse((ROOT / "skills" / name).exists())
+
     def test_fixture_discovery_lists_only_nested_active_regular_skill_files(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
