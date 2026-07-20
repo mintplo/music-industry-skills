@@ -3,7 +3,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILL = ROOT / "skills" / "music" / "research-music"
+SKILL = ROOT / "skills" / "dig-music"
 RECIPES = {
     "artist-and-album.md": "artist, release, album, song, track-list, or discography",
     "release-campaign.md": "rollout, teaser, promotion, media, or comeback-campaign",

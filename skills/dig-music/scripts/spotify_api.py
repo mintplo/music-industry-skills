@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small, dependency-free Spotify catalog adapter for research-music."""
+"""Small, dependency-free Spotify catalog adapter for dig-music."""
 
 from __future__ import annotations
 
@@ -385,7 +385,7 @@ def _configure(*, gui: bool = False) -> dict[str, Any]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Secure Spotify catalog access for the research-music skill."
+        description="Secure Spotify catalog access for the dig-music skill."
     )
     commands = parser.add_subparsers(dest="command", required=True)
     configure = commands.add_parser(

@@ -187,7 +187,7 @@ class SkillDiscoveryTests(unittest.TestCase):
         )
         active_skill_lines = result.stdout.splitlines()
         self.assertIn(
-            "skills/music/research-music/SKILL.md", active_skill_lines
+            "skills/dig-music/SKILL.md", active_skill_lines
         )
         self.assertFalse(
             any("/deprecated/" in line for line in active_skill_lines)
@@ -208,13 +208,12 @@ class SkillDiscoveryTests(unittest.TestCase):
 
         self.assertEqual(listed, markers)
 
-    def test_optional_collector_is_owned_by_research_music(self):
+    def test_optional_collector_is_owned_by_dig_music(self):
         self.assertTrue(
             (
                 ROOT
                 / "skills"
-                / "music"
-                / "research-music"
+                / "dig-music"
                 / "scripts"
                 / "collect_discography_data.py"
             ).is_file()
@@ -230,7 +229,7 @@ class SkillDiscoveryTests(unittest.TestCase):
                 env=env,
                 check=True,
             )
-            target = codex_home / "skills" / "research-music"
+            target = codex_home / "skills" / "dig-music"
             self.assertTrue(target.is_symlink())
             target.unlink()
             target.write_text("user-owned", encoding="utf-8")
@@ -252,11 +251,11 @@ class SkillDiscoveryTests(unittest.TestCase):
 
             result, homes = self.run_linker_for(ROOT, "claude", root)
 
-            target = homes["claude"] / "skills" / "research-music"
+            target = homes["claude"] / "skills" / "dig-music"
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertTrue(target.is_symlink())
             self.assertEqual(
-                (ROOT / "skills" / "music" / "research-music").resolve(),
+                (ROOT / "skills" / "dig-music").resolve(),
                 target.resolve(),
             )
             self.assertFalse(homes["codex"].exists())
@@ -281,7 +280,7 @@ class SkillDiscoveryTests(unittest.TestCase):
                 capture_output=True,
             )
 
-            target = official_home / "skills" / "research-music"
+            target = official_home / "skills" / "dig-music"
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertTrue(target.is_symlink())
             self.assertFalse(legacy_home.exists())
@@ -292,11 +291,11 @@ class SkillDiscoveryTests(unittest.TestCase):
 
             result, homes = self.run_linker_for(ROOT, "agents", root)
 
-            target = homes["agents"] / "skills" / "research-music"
+            target = homes["agents"] / "skills" / "dig-music"
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertTrue(target.is_symlink())
             self.assertEqual(
-                (ROOT / "skills" / "music" / "research-music").resolve(),
+                (ROOT / "skills" / "dig-music").resolve(),
                 target.resolve(),
             )
             self.assertFalse(homes["codex"].exists())
@@ -317,12 +316,12 @@ class SkillDiscoveryTests(unittest.TestCase):
 
         self.assertIn(
             "npx skills add mintplo/music-industry-skills "
-            "--skill research-music -g",
+            "--skill dig-music -g",
             readme,
         )
         self.assertIn("./scripts/link-skills.sh claude", readme)
-        self.assertIn("/research-music", readme)
-        self.assertIn("$research-music", readme)
+        self.assertIn("/dig-music", readme)
+        self.assertIn("$dig-music", readme)
 
     def test_link_skills_does_not_replace_foreign_symlinks(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -331,7 +330,7 @@ class SkillDiscoveryTests(unittest.TestCase):
             foreign.mkdir()
             target_dir = root / "skills"
             target_dir.mkdir()
-            target = target_dir / "research-music"
+            target = target_dir / "dig-music"
             target.symlink_to(foreign, target_is_directory=True)
 
             result = self.run_linker(ROOT, root)
@@ -509,18 +508,18 @@ class SkillDiscoveryTests(unittest.TestCase):
     def test_correct_existing_link_is_idempotent(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            repo = self.make_repo(root, "group/research-music")
+            repo = self.make_repo(root, "group/dig-music")
             codex_home = root / "codex-home"
 
             first = self.run_linker(repo, codex_home)
-            target = codex_home / "skills" / "research-music"
+            target = codex_home / "skills" / "dig-music"
             first_inode = target.lstat().st_ino
             second = self.run_linker(repo, codex_home)
 
             self.assertEqual(0, first.returncode, first.stderr)
             self.assertEqual(0, second.returncode, second.stderr)
             self.assertTrue(target.is_symlink())
-            expected = repo / "skills" / "group" / "research-music"
+            expected = repo / "skills" / "group" / "dig-music"
             self.assertEqual(expected.resolve(), target.resolve())
             self.assertEqual(first_inode, target.lstat().st_ino)
 

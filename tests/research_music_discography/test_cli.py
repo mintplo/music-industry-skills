@@ -10,8 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = (
     ROOT
     / "skills"
-    / "music"
-    / "research-music"
+    / "dig-music"
     / "scripts"
     / "collect_discography_data.py"
 )

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = Path(__file__).with_name("fixtures")
 sys.path.insert(
     0,
-    os.fspath(ROOT / "skills" / "music" / "research-music" / "scripts"),
+    os.fspath(ROOT / "skills" / "dig-music" / "scripts"),
 )
 
 from research_artist_discography.providers import (

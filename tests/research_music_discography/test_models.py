@@ -7,7 +7,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(
     0,
-    os.fspath(ROOT / "skills" / "music" / "research-music" / "scripts"),
+    os.fspath(ROOT / "skills" / "dig-music" / "scripts"),
 )
 
 from research_artist_discography.models import (

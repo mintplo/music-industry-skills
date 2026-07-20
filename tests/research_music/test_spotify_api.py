@@ -13,8 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = (
     ROOT
     / "skills"
-    / "music"
-    / "research-music"
+    / "dig-music"
     / "scripts"
     / "spotify_api.py"
 )
@@ -408,8 +407,7 @@ class SpotifyDocumentationTests(unittest.TestCase):
         provider = (
             ROOT
             / "skills"
-            / "music"
-            / "research-music"
+            / "dig-music"
             / "providers"
             / "spotify.md"
         ).read_text(encoding="utf-8")

@@ -3,7 +3,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PROVIDERS = ROOT / "skills" / "music" / "research-music" / "providers"
+PROVIDERS = ROOT / "skills" / "dig-music" / "providers"
 EXPECTED = {
     "musicbrainz.md", "wikidata.md", "spotify.md", "apple-music.md",
     "youtube.md", "circle-chart.md", "oricon.md", "web-search.md",

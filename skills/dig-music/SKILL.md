@@ -1,9 +1,9 @@
 ---
-name: research-music
+name: dig-music
 description: Use when researching music artists, releases, songs, campaigns, charts, sales, video or public social signals, competitors, or market trends from multiple sources.
 ---
 
-# Research Music
+# Dig Music
 
 Build a **source stack** for the question: the smallest useful combination of providers, search paths, and evidence rules that can close the user's requested branches.
 

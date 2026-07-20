@@ -17,7 +17,7 @@ Current chart, sales, campaign, social, or editorial claims.
 Use the public [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) through an available tool or HTTP client. Identify the client with a meaningful User-Agent.
 
 For complete, deterministic catalog normalization, the optional collector at
-`skills/music/research-music/scripts/collect_discography_data.py` can normalize
+`skills/dig-music/scripts/collect_discography_data.py` can normalize
 MusicBrainz release groups with catalog cross-checks. It is not required for
 ordinary research.
 

@@ -1,4 +1,4 @@
-# Research Music Forward Cases
+# Dig Music Forward Cases
 
 1. 코르티스의 새 앨범이 어떤 앨범인지, 콘셉트와 공개 후 초기 반응을 조사해줘.
 2. aespa의 LEMONADE 컴백에서 첫 티저부터 발매 후 일주일까지 프로모션 흐름을 조사해줘.

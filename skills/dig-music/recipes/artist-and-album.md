@@ -25,7 +25,7 @@ Start with [MusicBrainz](../providers/musicbrainz.md) and, when useful,
 Add [Apple Music](../providers/apple-music.md) or
 [Spotify](../providers/spotify.md) only for relevant catalog cross-checks.
 Only when the request actually requires a complete release inventory, optionally
-use `skills/music/research-music/scripts/collect_discography_data.py` for
+use `skills/dig-music/scripts/collect_discography_data.py` for
 deterministic catalog normalization; do not run it for ordinary artist or
 single-release questions.
 Use [Web search](../providers/web-search.md) to find official artist, label,

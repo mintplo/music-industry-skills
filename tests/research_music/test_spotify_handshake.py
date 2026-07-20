@@ -3,7 +3,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILL = ROOT / "skills" / "music" / "research-music"
+SKILL = ROOT / "skills" / "dig-music"
 
 
 class SpotifyHandshakeTests(unittest.TestCase):
