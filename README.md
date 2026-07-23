@@ -15,30 +15,34 @@ AI 에이전트 스킬 모음입니다. 특정 제품 전용 형식이 아니라
 Gemini CLI, OpenCode 등 각 도구에 맞는 위치로 설치합니다.
 
 ```bash
-npx skills add mintplo/music-industry-skills --skill dig-music -g
+npx skills add mintplo/music-industry-skills --skill dig-music --skill tap-in -g
 ```
+
+두 스킬을 함께 설치하면 `dig-music`이 공개 SNS 반응 데이터가 필요한 질문에서
+`tap-in`을 하위 스킬로 사용할 수 있습니다.
 
 질문 없이 특정 에이전트에 설치하려면 다음처럼 실행하세요.
 
 ```bash
 # Claude Code
-npx skills add mintplo/music-industry-skills --skill dig-music -g -a claude-code -y
+npx skills add mintplo/music-industry-skills --skill dig-music --skill tap-in -g -a claude-code -y
 
 # Codex
-npx skills add mintplo/music-industry-skills --skill dig-music -g -a codex -y
+npx skills add mintplo/music-industry-skills --skill dig-music --skill tap-in -g -a codex -y
 ```
 
 Codex에서는 새 작업에 아래 문장을 보내 설치를 맡길 수도 있습니다.
 
 ```text
-https://github.com/mintplo/music-industry-skills/tree/main/skills/dig-music 에서 dig-music 스킬을 설치해줘.
+https://github.com/mintplo/music-industry-skills 에서 dig-music과 tap-in 스킬을 설치해줘.
 ```
 
 ## 사용 방법
 
 Codex에서는 `$dig-music`, Claude Code에서는 `/dig-music`으로 직접
 호출할 수 있습니다. 스킬 설명과 일치하는 질문이면 에이전트가 자동으로 선택할
-수도 있습니다.
+수도 있습니다. 공개 SNS 데이터셋만 필요하면 `$tap-in` 또는
+`/tap-in`을 직접 호출할 수 있습니다.
 
 ```text
 # Codex
@@ -46,6 +50,9 @@ $dig-music 코르티스 새 앨범의 콘셉트와 초기 반응을 조사해줘
 
 # Claude Code
 /dig-music 코르티스 새 앨범의 콘셉트와 초기 반응을 조사해줘.
+
+# 공개 SNS 반응 데이터만 수집
+$tap-in 이 캠페인의 공개 게시물 지표와 댓글을 수집해줘.
 ```
 
 ## 이런 질문에 사용할 수 있습니다
@@ -79,6 +86,21 @@ $dig-music 코르티스 새 앨범의 콘셉트와 초기 반응을 조사해줘
 [스킬 설명 보기](./skills/dig-music/SKILL.md) ·
 [지원 소스 보기](./skills/dig-music/providers/CATALOG.md)
 
+### `tap-in`
+
+다른 리서치·분석 스킬이 다시 사용할 수 있는 공개 SNS 관측 데이터셋을 만드는
+하위 스킬입니다.
+
+- YouTube 공개 게시물 지표와 API로 접근 가능한 댓글 수집
+- Instagram·TikTok 공개 화면에서 게시물당 최대 100개 댓글 표본 수집
+- 조회수·좋아요·댓글 수의 출처 URL과 관측 시각 보존
+- 긍부정, 분석 가치, 스팸·중복·자동화 의심, 유해성의 독립 분류
+- 결측과 접근 제한을 0으로 바꾸지 않는 4개 파일 데이터 계약
+
+`dig-music`뿐 아니라 이후 추가되는 캠페인·시장·브랜드 분석 스킬에서도 이름으로
+호출할 수 있습니다. [스킬 설명 보기](./skills/tap-in/SKILL.md) ·
+[데이터 계약 보기](./skills/tap-in/references/data-contract.md)
+
 ## 데이터와 API에 관하여
 
 웹 검색과 공개 데이터만으로도 바로 시작할 수 있습니다. 질문에 따라
@@ -95,6 +117,51 @@ MusicBrainz, Apple Music, Wikidata, YouTube, Spotify, Circle Chart, Oricon,
 
 스킬은 값을 추측해 채우는 대신, 확인된 정보와 접근할 수 없는 정보를 구분해
 답하도록 설계되어 있습니다.
+
+### YouTube Data API 연결하기 (선택)
+
+공식 YouTube API를 연결하면 대상 아티스트 채널의 로그인 권한 없이도 공개 영상
+정보·조회수·좋아요·댓글 수와 공개 댓글을 수집할 수 있습니다. 먼저
+[Google Cloud Console](https://console.cloud.google.com/)에서 프로젝트를 만들고
+[YouTube Data API v3](https://developers.google.com/youtube/v3/getting-started)를
+활성화한 뒤 API 키를 만드세요. 키의 API 제한은 YouTube Data API v3로 지정하는
+것이 좋습니다.
+
+macOS에서는 저장소 폴더에서 아래 명령을 실행하면 숨김 입력창으로 키를 받아 먼저
+검증한 후 로그인 Keychain에 보관합니다. 이 경로는 macOS **Command Line Tools**의
+`xcrun swift`를 사용하므로, 처음이라면 `xcode-select --install`로 설치하세요. API
+키를 AI 대화나 GitHub에 붙여 넣지 마세요.
+
+```bash
+python3 skills/tap-in/scripts/youtube_api.py configure --gui
+python3 skills/tap-in/scripts/youtube_api.py check
+```
+
+보안 입력창이 보이지 않는 환경에서는, 사용자가 직접 연 Terminal에서 아래처럼
+실행하면 키가 화면에 표시되지 않는 입력으로 같은 설정을 할 수 있습니다.
+
+```bash
+python3 skills/tap-in/scripts/youtube_api.py configure
+```
+
+영상 ID를 알고 있다면 다음처럼 공개 지표와 접근 가능한 최상위 댓글·답글을 v1
+데이터 번들로 수집합니다. `--video-id`는 총 다섯 개까지 반복할 수 있고, 기본값은
+페이지 끝까지 수집하는 것입니다. 의도적으로 100개만 받을 때는
+`--max-comments 100`을 추가합니다.
+
+```bash
+python3 skills/tap-in/scripts/youtube_api.py collect \
+  --video-id VIDEO_ID \
+  --subject "Artist or campaign" \
+  --output ./output/youtube-reactions
+
+python3 skills/tap-in/scripts/validate_dataset.py \
+  ./output/youtube-reactions
+```
+
+macOS가 아니면 Keychain 설정 명령 대신 실행 환경에 `YOUTUBE_API_KEY`를 제공할 수
+있습니다. 최초 수집 파일의 댓글 분류는 `pending` 상태이므로, 스킬이 정성·정량
+분석에 넘기기 전에 긍부정·스팸·분석 가치 라벨을 완성하고 요약을 다시 계산합니다.
 
 ### Spotify 연결하기 (선택)
 
@@ -136,9 +203,11 @@ python3 skills/dig-music/scripts/spotify_api.py search album "CORTIS" --market K
 
 ## 호환성
 
-`dig-music`은 표준 `SKILL.md`의 `name`과 `description`, 상대경로 리소스만
-사용합니다. Claude Code 전용 실행 구문이나 특정 에이전트 전용 도구 권한을
-스킬 본문에 넣지 않아 다른 Agent Skills 호환 도구에서도 재사용할 수 있습니다.
+두 스킬은 표준 `SKILL.md`의 `name`과 `description`, 상대경로 리소스만
+사용합니다. `dig-music`은 `tap-in`을 이름으로 호출하고 버전이
+붙은 산출물을 소비하므로 설치 위치에 의존하는 파일 import가 없습니다. Claude
+Code 전용 실행 구문이나 특정 에이전트 전용 도구 권한도 스킬 본문에 넣지 않아
+다른 Agent Skills 호환 도구에서도 재사용할 수 있습니다.
 
 - **직접 지원·검증:** Codex, Claude Code
 - **표준 경로:** `.agents/skills/`를 읽는 Agent Skills 호환 클라이언트
@@ -174,16 +243,17 @@ cd music-industry-skills
 
 ```text
 skills/
-  dig-music/           # 현재 사용 가능한 범용 음악 리서치 스킬
+  dig-music/                    # 범용 음악 리서치와 상위 오케스트레이션
+  tap-in/                       # 공개 SNS 지표·댓글 데이터셋 수집
 scripts/
   list-skills.sh        # 배포 대상 스킬 확인
   link-skills.sh        # Codex·Claude Code·Agent Skills 경로에 연결
 tests/                  # 스킬 계약과 보조 수집기의 테스트
 ```
 
-새로운 데이터 제공자나 조사 유형은 `dig-music` 안의 provider 문서와 recipe를
-추가하는 방식으로 확장합니다. 별도의 좁은 스킬은 사용 흐름이 실제로 분리될 때만
-추가할 계획입니다.
+새로운 음악 데이터 제공자나 조사 유형은 `dig-music` 안의 provider 문서와
+recipe로 확장합니다. 여러 분석 흐름이 함께 사용할 수 있는 독립 수집 과정은
+`tap-in`처럼 별도 스킬과 버전형 데이터 계약으로 분리합니다.
 
 ## 유의 사항
 
