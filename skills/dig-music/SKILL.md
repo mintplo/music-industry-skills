@@ -41,6 +41,10 @@ For a simple or single-fact request, use the common steps directly; do not load 
 - For multi-part or branch-specific research about a **genre, platform, country, audience, or market-pattern**, read
   [`recipes/market-trend.md`](recipes/market-trend.md) only when that branch
   appears in the user's request.
+- For research requiring reusable **YouTube, Instagram, or TikTok post metrics, comments, sentiment, spam/noise, automation, or toxicity data**:
+  **REQUIRED SUB-SKILL:** Use `tap-in`. Pass resolved music
+  entities, seed URLs, period, and the exact research question; consume its
+  four versioned output artifacts without copying its platform instructions.
 
 ## Completion criterion
 

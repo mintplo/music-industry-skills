@@ -199,6 +199,11 @@ class SkillDiscoveryTests(unittest.TestCase):
             )
         )
 
+    def test_public_tap_in_skill_is_discovered(self):
+        inventory = self.run_lister(ROOT).stdout.splitlines()
+
+        self.assertIn("skills/tap-in/SKILL.md", inventory)
+
     def test_repository_has_no_installable_skill_markers_outside_inventory(self):
         listed = set(self.run_lister(ROOT).stdout.splitlines())
         markers = {
@@ -316,7 +321,7 @@ class SkillDiscoveryTests(unittest.TestCase):
 
         self.assertIn(
             "npx skills add mintplo/music-industry-skills "
-            "--skill dig-music -g",
+            "--skill dig-music --skill tap-in -g",
             readme,
         )
         self.assertIn("./scripts/link-skills.sh claude", readme)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tap In"
+  short_description: "공개 SNS 게시물·지표·댓글을 재사용 가능한 데이터로 수집"
+  default_prompt: "Use $tap-in to collect public post metrics and comments into a reusable, source-backed dataset."
